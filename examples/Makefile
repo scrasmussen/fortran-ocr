@@ -2,8 +2,8 @@ CC=gcc
 FC=gfortran
 INCLUDE=$(HOME)/xstack/ocr/install/x86/include/
 OBJS = ocr-wrapper.o ocr-types.o ocr-interfaces.o printf.o test-ocr-types.o 
-CFLAGS = -g -std=c99
-FFlags = -g
+CFLAGS = 
+FFlags = 
 
 .SUFFIXES: .F90 .o
 
@@ -21,8 +21,10 @@ basic: basic.F90 basic.o objs # $(OBJS)
 ex1: ex1.F90 ex1.o objs # $(OBJS)
 	$(CC) -o ex1 ex1.o ocr-wrapper.o printf.o ../../build/x86/libocr.a -lpthread -v ${CFLAGS}
 
-ex2: ex2.F90 ex2.o objs # $(OBJS)
-	$(FC) -o ex2 ex2.o ocr-wrapper.o printf.o ../../build/x86/libocr.a -lpthread -v ${FFLAGS} -g
+ex2: $(OBJS)ex2.F90 ex2.o objs # $(OBJS)
+	$(CC) -o ex2 ex2.o ocr-wrapper.o printf.o ../../build/x86/libocr.a -lpthread -v ${FFLAGS} -g
+	echo '--Running--'
+	./ex2
 
 objs: $(OBJS)
 	-@echo "--Compiled--"
