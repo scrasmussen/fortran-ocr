@@ -14,38 +14,29 @@ function appEdt(paramc, paramv, depc, depv) result(returnGuid) BIND(c)
   use ocr_types
   use :: ocr_interfaces, only : printf_str
   implicit none
-  integer(C_INTPTR_T) :: returnGuid
+  integer(C_INTPTR_T) :: returnGuid, dataguid
   integer(C_INT32_T), intent(in) :: paramc
   integer(C_INT64_T), intent(in), dimension(*) :: paramv
   integer(C_INT32_T), intent(in) :: depc
-  ! integer(C_INTPTR_T), intent(in), dimension(*), target :: depv
   type(ocrEdtDep_t), intent(in), dimension(*), target :: depv
   type(C_PTR) :: data
   integer(C_INT64_T), pointer :: test(:)
-  ! type(C_PTR), pointer :: data
   integer(C_INT64_T) :: i, val
   integer(C_INT64_T), pointer :: a(:)
 
-  data = depv(0)%ptr
+  data = depv(1)%ptr
+  dataguid = depv(1)%guid
+  call printf_i("guid address is" // C_NULL_CHAR , dataguid)
   call printf_p("data address is" // C_NULL_CHAR , data)
   call printf_i("array size = %u" // C_NULL_CHAR, paramv(1))
+
   i = paramv(2)
   call printf_i("array[i] where i=" // C_NULL_CHAR , i)
-
   call c_f_pointer(data, a, [100]);
   call printf_i("is " // C_NULL_CHAR , a(i) )
 
-  ! call printf_i32("depc" // C_NULL_CHAR , depc)
-  ! call c_f_pointer(depv, data, [1]);
-
-
-  ! call c_f_pointer(data(1), test, [paramv(1)]);
-  ! call printf_p("data address:" // C_NULL_CHAR, data(1))
-
-  ! i = paramv(2)
-  ! val = test(1)
-
-  call printf_str("Hello from EDT" // C_NULL_CHAR)
+  ! call printf_str("Hello from EDT" // C_NULL_CHAR)
+  call ocrShutdown()
   returnGuid = 0 ! C_NULL_PTR
 end function appEdt
 
@@ -101,9 +92,11 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
 
   call ocrDbCreate(dataGuid, dataArray,sizeof(u64)*arraySize, flags, affinity, allocator)
 
+  call printf_i("===dataGuid" // C_NULL_CHAR , dataGuid)
   ! Set element at 'index'
   call c_f_pointer(dataArray, a, [arraySize]);
-  call  printf_p("addr = " // C_NULL_CHAR, dataArray)
+  call  printf_p("===addr = " // C_NULL_CHAR, dataArray)
+  call  printf_str("===index a(2)=10" // C_NULL_CHAR)
   a(index) = 10
 
   dataGuidArray(1) = dataGuid
@@ -113,9 +106,9 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
        1_C_INT, dataGuidArray, EDT_PROP_NONE, NULL_GUID, outputEvent)
 
   ! call c_f_pointer(edtGuid, test, 1);
-  ! call printf_p("edtGuid" // C_NULL_CHAR , edtGuid)
+  call printf_p("===edtGuid" // C_NULL_CHAR , edtGuid)
   ! call printf_p("test" // C_NULL_CHAR , test)
-  call ocrShutdown()
+
 
   returnGuid = 0 ! C_NULL_PTR
 end function mainEdt
