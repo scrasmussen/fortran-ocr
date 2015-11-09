@@ -1,14 +1,39 @@
+!
+! Author: Soren Rasmussen
+! University of Oregon
+!
+
 module ocr_interfaces
+use ISO_C_BINDING
+
 interface
+
+function ocrAddDependence(source, destination, slot, mode) result(status) &
+     BIND (c, name='wocrAddDependence')
+  use :: ISO_C_BINDING
+  use :: ocr_types
+  implicit none
+  integer(C_INTPTR_T), intent(IN), value :: source, destination
+  integer(C_INT32_T), intent(IN), value :: slot, mode
+  integer(C_INT8_T) :: status
+end function ocrAddDependence
+
+subroutine ocrEventCreate(guid, eventType, flags) &
+     BIND (c, name='wocrEventCreate')
+  use :: ISO_C_BINDING
+  use :: ocr_types
+  implicit none
+  integer(C_INTPTR_T), intent(OUT) :: guid
+  integer(C_INT32_T), intent(IN), value :: eventType
+  integer(C_INT16_T), intent(IN), value :: flags
+end subroutine ocrEventCreate
 
 subroutine ocrDbCreate(db, addr, len, flags, affinity, allocator) &
      BIND (c, name='wocrDbCreate')
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
-  ! type(C_PTR), intent(OUT) :: db
   integer(C_INTPTR_T), intent(OUT) :: db
-  ! integer(C_INTPTR_T), intent(OUT)  :: addr
   type(C_PTR), intent(OUT)  :: addr
   integer(C_INT64_T), intent(IN), value :: len
   integer(C_INT16_T), intent(IN), value :: flags
@@ -22,17 +47,15 @@ subroutine ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, depv, &
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
-  type(C_PTR), intent(OUT) :: guid
+  integer(C_INTPTR_T), intent(OUT) :: guid
   integer(C_INTPTR_T), intent(IN), value :: templateGuid
   integer(C_INT32_T), intent(IN), value :: paramc
-  ! type(C_PTR), intent(IN), value  :: paramv
   integer(C_INT64_T), intent(IN), dimension(*) :: paramv
   integer(C_INT32_T), intent(IN), value :: depc
   integer(C_INTPTR_T), intent(IN), dimension(*) :: depv
-  ! type(C_PTR), intent(IN), dimension(*) :: depv
   integer(C_INT16_T), intent(IN), value :: properties
   integer(C_INTPTR_T), intent(IN), value :: affinity
-  type(C_PTR), intent(INOUT) :: outputEvent
+  integer(C_INTPTR_T), intent(INOUT) :: outputEvent
 end subroutine ocrEdtCreate
 
 ! ocrEdtTemplateCreate, _internal added so symbols match
@@ -53,18 +76,25 @@ subroutine ocrShutdown() &
   implicit none
 end subroutine ocrShutdown
 
-function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
-     BIND (c, name='wmainEdt')
+function getArgc(dbPtr) result(argNum) &
+     BIND (c, name='wgetArgc')
   use ISO_C_BINDING
-  use :: ocr_types
-  implicit none
-  integer(C_INTPTR_T) :: returnGuid
-  integer(C_INT32_T), intent(IN) :: paramc
-  integer(C_INT64_T), intent(IN) :: paramv
-  ! type(C_PTR), intent(IN) :: paramv
-  integer(C_INT32_T), intent(IN) :: depc
-  type(ocrEdtDep_t), intent(IN) :: depv
-end function mainEdt
+  type(C_PTR), intent(IN) :: dbPtr
+  integer(C_INT64_T) :: argNum
+end function getArgc
+
+! function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
+!      BIND (c, name='wmainEdt')
+!   use ISO_C_BINDING
+!   use :: ocr_types
+!   implicit none
+!   integer(C_INTPTR_T) :: returnGuid
+!   integer(C_INT32_T), intent(IN) :: paramc
+!   integer(C_INT64_T), intent(IN) :: paramv
+!   ! type(C_PTR), intent(IN) :: paramv
+!   integer(C_INT32_T), intent(IN) :: depc
+!   type(ocrEdtDep_t), intent(IN) :: depv
+! end function mainEdt
 
 subroutine printf_str(str) bind(C, name="printf_str")
   character(len=1) :: str(*)
@@ -75,6 +105,12 @@ subroutine printf_i(str, i) bind(C, name="printf_i")
   character(len=1) :: str(*)
   integer(C_INT64_t), value :: i
 end subroutine printf_i
+
+subroutine printf_f(str, i) bind(C, name="printf_f")
+  use ISO_C_BINDING
+  character(len=1) :: str(*)
+  integer(C_FLOAT), value :: i
+end subroutine printf_f
 
 subroutine printf_i32(str, i) bind(C, name="printf_i32")
   use ISO_C_BINDING
@@ -95,6 +131,9 @@ subroutine printf_pi(str, i) bind(C, name="printf_pi")
 end subroutine printf_pi
 
 end interface
+
+integer(C_INTPTR_T), bind(c, name="OCR_NULL_DEPV") :: NULL_DEPV(1)
+integer, parameter :: OCR_JUNK = 0
 
 end module ocr_interfaces
 
