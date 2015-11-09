@@ -4,7 +4,6 @@ module m
   use :: ocr_interfaces, only : ocrShutdown, printf_str, printf_i
   use :: ocr_interfaces, only : ocrEdtTemplateCreate_internal
   use :: ocr_interfaces, only : ocrEdtCreate
-  use :: test_ocr_types
   implicit none
 
 contains

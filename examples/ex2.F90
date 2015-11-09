@@ -4,7 +4,6 @@ module m
   use :: ocr_interfaces, only : ocrShutdown, printf_str, printf_i, printf_p
   use :: ocr_interfaces, only : ocrEdtTemplateCreate, printf_pi, printf_i32
   use :: ocr_interfaces, only : ocrEdtCreate, ocrDbCreate
-  use :: test_ocr_types
   implicit none
 
 contains
@@ -51,8 +50,7 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
   ! params
   integer(C_INT32_T) :: fparamc
   integer(C_INT32_T) :: fdepc
-  integer(C_INTPTR_T) :: templateGuid
-  type(C_PTR) :: edtGuid
+  integer(C_INTPTR_T) :: templateGuid, edtGuid
   type(ocrEdt_t) :: ptr 
   type(C_PTR) :: outputEvent
   integer(C_INT64_T) :: arraySize, index
@@ -69,7 +67,7 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
   integer(C_INT64_T), pointer :: a(:)
   integer(C_INT64_T) :: i
   type(C_PTR) :: locval
-  type(C_PTR), pointer :: test
+  integer(C_INTPTR_T) :: test
 
 
   ! create template for appEdt
@@ -100,13 +98,15 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
   a(index) = 10
 
   dataGuidArray(1) = dataGuid
+  ! outputEvent = C_NULL_PTR
   outputEvent = C_NULL_PTR
+  test = C_NULL
 
   call ocrEdtCreate(edtGuid, templateGuid, EDT_PARAM_DEF, nparamv, &
-       1_C_INT, dataGuidArray, EDT_PROP_NONE, NULL_GUID, outputEvent)
+       1_C_INT, dataGuidArray, EDT_PROP_NONE, NULL_GUID, test)
 
   ! call c_f_pointer(edtGuid, test, 1);
-  call printf_p("===edtGuid" // C_NULL_CHAR , edtGuid)
+  call printf_i("===edtGuid" // C_NULL_CHAR , edtGuid)
   ! call printf_p("test" // C_NULL_CHAR , test)
 
 
