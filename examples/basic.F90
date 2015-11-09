@@ -17,17 +17,3 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
    returnGuid%guid = C_NULL_PTR
 
  end function mainEdt
-
-
-! program basic
-!   use iso_c_binding
-!   use ocr_interfaces
-!   use :: ocr_types, only : s64
-!   implicit none
-
-
-
-!   call ocrShutdown()
-!   ! print *, 'After ocrShutdown'
-
-! end program basic
