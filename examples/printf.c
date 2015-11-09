@@ -11,6 +11,11 @@ void printf_i(char * str, int i)
   PRINTF("%s: %d\n", str, i);
 }
 
+void printf_f(char * str, float i)
+{
+  PRINTF("%s: %f\n", str, i);
+}
+
 void printf_i32(char * str, u32 i)
 {
   
