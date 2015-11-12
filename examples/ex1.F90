@@ -26,10 +26,9 @@ end function appEdt
 function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
      BIND (c, name='mainEdt')
   integer(C_INTPTR_T) :: returnGuid
-  integer(C_INT32_T), intent(in) :: paramc
-  integer(C_INT64_T), intent(in) :: paramv
-  integer(C_INT32_T), intent(in) :: depc
-  type(ocrEdtDep_t), intent(in) :: depv
+  integer(C_INT32_T), intent(in) :: paramc, depc
+  integer(C_INT64_T), intent(in) :: paramv(*)
+  type(ocrEdtDep_t), intent(in) :: depv(*)
   integer(C_INT32_T) :: fparamc
   integer(C_INT32_T) :: fdepc
   integer(C_INTPTR_T) :: templateGuid
