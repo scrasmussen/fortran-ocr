@@ -1,9 +1,17 @@
-CC=gcc
-FC=gfortran
-INCLUDE=$(HOME)/xstack/ocr/install/x86/include/
+OCR_ROOT = $(HOME)/xstack
+OCR_CONFIG = $(OCR_ROOT)/ocr/install/x86/config/default.cfg
+
+CC = gcc
+FC = gfortran
+
+INCLUDES = -I$(OCR_ROOT)/ocr/install/x86/include/
 OBJS = ocr-wrapper.o ocr-types.o ocr-interfaces.o printf.o
-CFLAGS = 
-FFlags = 
+LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
+EXES = basic ex1 ex2 hello stencil_1d create-ocr-type-size
+
+CFLAGS = -g ${INCLUDES}
+FFLAGS = ${INCLUDES}
+LDFLAGS = -lpthread
 
 .SUFFIXES: .F90 .o
 
@@ -11,7 +19,7 @@ FFlags =
 	$(FC) -c $(@:.o=.F90) ${FFLAGS}
 
 .c.o:
-	$(CC) -c $(@:.o=.c) -I$(INCLUDE)  -g ${CFLAGS}
+	$(CC) -c $(@:.o=.c) ${CFLAGS}
 
 all: stencil
 
@@ -25,6 +33,9 @@ ex2: $(OBJS) ex2.F90 ex2.o objs
 	$(CC) -o ex2 ex2.o ocr-wrapper.o printf.o ../../build/x86/libocr.a -lpthread -v ${FFLAGS} -g
 	echo '--Running--'
 	./ex2
+
+hello: $(OBJS) hello.F90 hello.o objs
+	$(FC) -o hello hello.o ${FFLAGS} ${LDFLAGS} ${OBJS} ${LIBS}
 
 stencil: $(OBJS) stencil_1d.F90 stencil_1d.o objs
 	$(CC) -o stencil_1d stencil_1d.o ocr-wrapper.o printf.o ../../build/x86/libocr.a -lpthread -v ${FFLAGS} -g
@@ -44,4 +55,4 @@ type-mod: ocr-types.F90
 	$(FC) -c ocr-types.F90
 
 clean:
-	rm -f *~ *.o basic *.mod ex1 ex2 create-ocr-type-size stencil_1d
+	rm -f *~ *.o *.mod ${EXES}
