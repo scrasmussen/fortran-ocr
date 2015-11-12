@@ -3,8 +3,8 @@
 #include "ocr.h"
 #include "ocr-std.h"
 
-/* #define VERBOSE */
-/* #define VERBOSEARG */
+#undef VERBOSE
+#undef VERBOSEARG
 
 void wocrAddDependence(ocrGuid_t source, ocrGuid_t destination, u32 slot, ocrDbAccessMode_t mode)
 {
@@ -88,13 +88,12 @@ u64* test64NULL(u64 *ptr, u64 *addr)
   return addr;
 }
 
-#define VERBOSE
 void wocrEdtCreate(ocrGuid_t *guid, ocrGuid_t templateGuid, u32 paramc, u64 * paramv, u32 depc, ocrGuid_t *depv, u16 flags, ocrGuid_t affinity, ocrGuid_t * outputEvent)
 {
 #if defined(VERBOSE)
   PRINTF("Pre-ocrEdtCreate\n");
-#endif
   PRINTF("Null is %p\n", NULL);
+#endif
   depv = testNULL(*depv, depv);
   paramv = test64NULL(*paramv, paramv);
 
@@ -106,7 +105,6 @@ void wocrEdtCreate(ocrGuid_t *guid, ocrGuid_t templateGuid, u32 paramc, u64 * pa
 #endif
   return;
 }
-#undef VERBOSE
 
 void wocrEdtTemplateCreate_internal(ocrGuid_t *guid, ocrEdt_t funcPtr, u32 paramc, u32 depc, char* funcName)
 {
