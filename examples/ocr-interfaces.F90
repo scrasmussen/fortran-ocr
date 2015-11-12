@@ -106,10 +106,10 @@ subroutine printf_i(str, i) bind(C, name="printf_i")
   integer(C_INT64_t), value :: i
 end subroutine printf_i
 
-subroutine printf_f(str, i) bind(C, name="printf_f")
+subroutine printf_f(str, x) bind(C, name="printf_f")
   use ISO_C_BINDING
   character(len=1) :: str(*)
-  integer(C_FLOAT), value :: i
+  real(C_FLOAT), value :: x
 end subroutine printf_f
 
 subroutine printf_i32(str, i) bind(C, name="printf_i32")
