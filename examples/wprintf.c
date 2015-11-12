@@ -1,7 +1,7 @@
 #include "ocr.h"
 #include <string.h>
 
-void printf_str(char * str)
+void wprintf_str(char * str)
 {
   PRINTF("%s\n", str);
 }
