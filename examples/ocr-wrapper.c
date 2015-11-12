@@ -3,9 +3,6 @@
 #include "ocr.h"
 #include "ocr-std.h"
 
-intptr_t OCR_NULL_DEPV = NULL;
-/* ocrGuid_t testNULL(ocrGuid_t*); */
-
 /* #define VERBOSE */
 /* #define VERBOSEARG */
 
@@ -98,13 +95,11 @@ void wocrEdtCreate(ocrGuid_t *guid, ocrGuid_t templateGuid, u32 paramc, u64 * pa
   PRINTF("Pre-ocrEdtCreate\n");
 #endif
   PRINTF("Null is %p\n", NULL);
-  PRINTF("NULL_DEPV is %p\n", &OCR_NULL_DEPV);
   depv = testNULL(*depv, depv);
   paramv = test64NULL(*paramv, paramv);
 
 
   ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, depv, flags, affinity, outputEvent);
-  /* ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, NULL, flags, affinity, outputEvent); */
 
 #if defined(VERBOSE)
   PRINTF("Post-ocrEdtCreate\n");
