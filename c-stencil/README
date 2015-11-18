@@ -1,0 +1,2 @@
+stencil1d.c and stencil1d.h are based on Dave's sticky code
+newstencil1d.c and newstencil1d.h will be implementations of our version. Currently has serial version implemented.
