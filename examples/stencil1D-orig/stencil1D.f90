@@ -14,6 +14,12 @@ program main_stencil1D
    !
    allocate(A(1-H:NX+H))
 
+   !! initialize data
+   !
+   A(1:NX)      = 1.0
+   A(1-H:0)     = 0.0    ! just to have a halo value different
+   A(NX+1:NX+H) = 0.0
+
    !! time loop
    !
    ! This should trigger a loopEDT
