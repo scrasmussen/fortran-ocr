@@ -3,24 +3,38 @@
 #include "cocr.h"
 #include "stencil1d.h"
 
-
+ocrGuid_t printDB(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[]);
 
 void createHaloArrays(haloArray_t* haloArray, double *A, u64 n, u64 np)
 {
-   // Create Templates
-  ocrGuid_t fortranMainTemplate, endTemplate;
-  u64 i;
+  u64 i, sizeOfArray = n / np, j;
 
+  // 1. Set up np datablocks
 
+  ocrGuid_t dataGuid[np];
+  double **dataArray[np];
+  for (i = 0; i < np; ++i)
+    {
+      double data[sizeOfArray];
+      ocrDbCreate(&dataGuid[i], (void **) &data, sizeof(double)*N*M, DB_PROP_NONE, NULL_GUID, NO_ALLOC);
+      for (j = 0; j < sizeOfArray; ++j)
+	data[j] = (j+1)*0.2+i*7;
+      dataArray[i] = &data;
+    }
 
-  /* ocrEdtTemplateCreate(&fortranMainTemplate, fortranMain, 2, 1); */
+  double *data;
+  for (i = 0; i < np; ++i)
+    {
+      data = dataArray[i];
+      for (j = 0; j < sizeOfArray; ++j)
+	PRINTF("data[%u][%u] = %f", i,j, data[j]);
+    }
+
+  /* ocrGuid_t printDBTemplate; */
+  /* ocrEdtTemplateCreate(&printDBTemplate, printDB, 0, 1);   */
+
   /* // Create db */
-  /* double *dataArray; */
-  /* ocrGuid_t dataGuid; */
-  /* ocrDbCreate(&dataGuid, (void **) &dataArray, sizeof(double)*N*M, DB_PROP_NONE, NULL_GUID, NO_ALLOC); */
 
-  /* for (i = 0; i < N*M; ++i) */
-  /*   dataArray[i] = (i+1)*0.2; */
 
   /* // Create EDTs */
   /* ocrGuid_t dummy; */
@@ -41,6 +55,11 @@ void createHaloArrays(haloArray_t* haloArray, double *A, u64 n, u64 np)
   return;
 }
 
+ocrGuid_t printDB(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
+{
+  
+  return NULL_GUID;
+}
 
 ocrGuid_t fortranMain(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
 {
@@ -68,10 +87,7 @@ ocrGuid_t fortranMain(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
   ocrDbCreate(&ltest2Guid, (void **) &ltest2Data, sizeof(float), 0, NULL_GUID, NO_ALLOC);
   // fill in data
 
-
   // Dependencies
-
-
 
   return NULL_GUID;
 }
