@@ -1,93 +1,72 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ocr.h>
 #include "cocr.h"
 #include "stencil1d.h"
 
-ocrGuid_t printDB(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[]);
+ocrGuid_t test(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[]);
 
-void createHaloArrays(haloArray_t* haloArray, double *A, u64 n, u64 np)
+ocrGuid_t test(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
 {
-  u64 i, sizeOfArray = n / np, j;
+  PRINTF("ENTERED TEST\n");  
+  double *data = (double*) depv[0].ptr;
+  PRINTF("data pointer = %p\n", &data);
+  PRINTF("A[0] = %.1f\n", data[0]);
+  PRINTF("A[1] = %.1f\n", data[1]);
 
-  // 1. Set up np datablocks
-
-  ocrGuid_t dataGuid[np];
-  double **dataArray[np];
-  for (i = 0; i < np; ++i)
-    {
-      double data[sizeOfArray];
-      ocrDbCreate(&dataGuid[i], (void **) &data, sizeof(double)*N*M, DB_PROP_NONE, NULL_GUID, NO_ALLOC);
-      for (j = 0; j < sizeOfArray; ++j)
-	data[j] = (j+1)*0.2+i*7;
-      dataArray[i] = &data;
-    }
-
-  double *data;
-  for (i = 0; i < np; ++i)
-    {
-      data = dataArray[i];
-      for (j = 0; j < sizeOfArray; ++j)
-	PRINTF("data[%u][%u] = %f", i,j, data[j]);
-    }
-
-  /* ocrGuid_t printDBTemplate; */
-  /* ocrEdtTemplateCreate(&printDBTemplate, printDB, 0, 1);   */
-
-  /* // Create db */
+  return NULL_GUID;
+}
 
 
-  /* // Create EDTs */
-  /* ocrGuid_t dummy; */
-  /* u64 nparamv[2*N]; */
-  /* for (i = 0; i < N; ++i) */
+void createHaloArrays(haloArray_t haloArray[], u64 np, u64 nx, u64 t)
+{
+  u64 i=0, j;
+  PRINTF("In lib np=%u nx=%u t=%u\n", np, nx, t);
+  PRINTF("pre ocrDbCreate\n");
+  PRINTF("addr = %p\n", &haloArray[i].data.guid);
+  ocrGuid_t dataArrayGuid;
+
+  //  ocrDbCreate(&haloArray[i].data.guid, (void **) &haloArray[i].data.ptr, sizeof(double)*nx, DB_PROP_NONE, NULL_GUID, NO_ALLOC);
+  ocrDbCreate(&haloArray[i].data.guid, &haloArray[i].data.ptr, sizeof(double)*nx, DB_PROP_NONE, NULL_GUID, NO_ALLOC);
+
+  PRINTF(" dataARRAYPOINTER = %p\n", &haloArray[i].data.ptr);
+
+  /* ocrDbCreate(dataArrayGuid, (void **) &haloArray[x]->dataArray, sizeof(double)*nx, DB_PROP_NONE, NULL_GUID, NO_ALLOC); */
+  PRINTF("post ocrDbCreate\n");
+
+  /* 1. Set up np datablocks */
+  /* for (i = 0; i < np; ++i) */
   /*   { */
-  /*     nparamv[2*i] = i*M; */
-  /*     nparamv[2*i+1] = N*M; */
-  /*     ocrEdtCreate(&dummy, fortranMainTemplate, 2, &nparamv[2*i], 1,  */
-  /* 		   &dataGuid, EDT_PROP_NONE, NULL_GUID, NULL); */
+  /*     PRINTF("i=%u\n", i); */
+  /*     ocrDbCreate(&haloArray[i]->dataArrayGuid, (void **) &haloArray[i]->dataArray, sizeof(double)*nx, DB_PROP_NONE, NULL_GUID, NO_ALLOC); */
+  /*     PRINTF("post ocrDbCreate\n"); */
+  /*     haloArray[i]->dataArray[0] = i+8; */
   /*   } */
 
-  // Add Dependencies
+  double* tmp =  (double*) haloArray[0].data.ptr;
+  tmp[1] = -3;
+  ((double*) haloArray[0].data.ptr)[0] = 4;
 
- 
 
-  PRINTF("n = %u\n", n);
+
+
+  ocrGuid_t testTemplate, testGuid;
+  ocrEdtTemplateCreate(&testTemplate, test, 0, 1);
+  ocrEdtCreate(&testGuid, testTemplate, EDT_PARAM_DEF, NULL, EDT_PARAM_DEF, &haloArray[0].data.guid, EDT_PROP_NONE, NULL_GUID, NULL);
+
+
+  /* ocrEdtCreate(&testGuid, testTemplate, EDT_PARAM_DEF, NULL, EDT_PARAM_DEF, &dataArrayGuid, EDT_PROP_NONE, NULL_GUID, NULL); */
+
+
+
+
+  /* for (i = 0; i < np; ++i) */
+    /* ocrEdtCreate(&testGuid, testTemplate, EDT_PARAM_DEF, NULL, EDT_PARAM_DEF, &haloArray[i]->dataArrayGuid, EDT_PROP_NONE, NULL_GUID, NULL); */
+  PRINTF("post ocrEdtCreate\n");
+
+
   return;
 }
 
-ocrGuid_t printDB(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
-{
-  
-  return NULL_GUID;
-}
 
-ocrGuid_t fortranMain(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
-{
-  /* PRINTF("HELLO FROM FORTRAN MAIN\n"); */
-  float *data = depv[0].ptr;
-  u64 rank = paramv[0], size = paramv[1], i;
-  PRINTF("rank=%u size=%u dataArray[%u]=%.1f\n", rank, size, rank, data[rank]);
 
-  /* allocate array  */
-  /* This should trigger ocr_createDB for the array and the halo regions. */
-  /* u64 unitSize = N / M; */
-  /* float *lHalo, *rHalo; */
-  /* ocrGuid_t lHaloGuid, rHaloGuid; */
-  /* ocrDbCreate(&lHaloGuid, (void **) &lHalo, sizeof(float)*N, DB_PROP_NONE, \ */
-  /* 	      NULL_GUID, NO_ALLOC); */
-  /* ocrDbCreate(&rHaloGuid, (void **) &rHalo, sizeof(float)*N, DB_PROP_NONE, \ */
-  /* 	      NULL_GUID, NO_ALLOC); */
-
-  // initialize Center and Halo
-  float *test1Data, *rtest1Data, *test2Data, *ltest2Data; ; 
-  ocrGuid_t test1Guid, rtest1Guid, test2Guid, ltest2Guid;
-  ocrDbCreate(&test1Guid, (void **) &test1Data, sizeof(float), 0, NULL_GUID, NO_ALLOC);
-  ocrDbCreate(&rtest1Guid, (void **) &rtest1Data, sizeof(float), 0, NULL_GUID, NO_ALLOC);
-  ocrDbCreate(&test2Guid, (void **) &test2Data, sizeof(float), 0, NULL_GUID, NO_ALLOC);
-  ocrDbCreate(&ltest2Guid, (void **) &ltest2Data, sizeof(float), 0, NULL_GUID, NO_ALLOC);
-  // fill in data
-
-  // Dependencies
-
-  return NULL_GUID;
-}
