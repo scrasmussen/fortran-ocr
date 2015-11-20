@@ -10,23 +10,40 @@
 #define NX 4
 #define H 1
 
-void initialize(double *, u64, u64, double);
 void printArray(double *);
 
 ocrGuid_t mainEdt(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
 {
   PRINTF("==Starting==\n");
-  PRINTF("ranks=%d ranksize=%d timesteps=%d\n", N, M, T);
-  u64 np = 2, n=2;
+  /* u64 np = 2; */
+  s32 np = 2;
+  s64 n=2, nx=4, t=T; 
+  t = 1;
+  PRINTF("np=%u nx=%u t=%u\n", np, nx, t);
   // Initialize array A
+  /* USER
   double A[n*M+2];
-  initialize(A, n, M, 1);
-  // Send A to get split into np number of halo arrays
+  for (int i = 0; i < n*m + 2; ++i)
+      A = i;
+  */
+  /* USER FORTRAN 
+     !$OFP HALO :: A(H:*:H)
+     allocate(A(1-H:NX+H))
+     A(1:NX) = 1.0
+     A(1-H:) = 0.0
+     A(NX+1:NX+H) = 0.0 
+  */
+  // Become
   haloArray_t haloArray[np];
-  createHaloArrays(haloArray, A, NX, np);
+  createHaloArrays(haloArray, np, nx, t);
+
+  /* for (int i = 0; i < n*m + 2; ++i) */
+  /*     A = i; */
+  
 
 
   ocrShutdown();
+  PRINTF("Fin\n");
   return NULL_GUID;
 }
 
