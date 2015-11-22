@@ -6,28 +6,22 @@ void wprintf_str(char * str)
   PRINTF("%s\n", str);
 }
 
-void printf_i(char * str, int i)
+void wprintf_i64(char * str, int64_t i)
 {
-  PRINTF("%s: %d\n", str, i);
+  PRINTF("%s: %ld\n", str, i);
 }
 
-void printf_f(char * str, float i)
+void wprintf_f(char * str, float i)
 {
   PRINTF("%s: %f\n", str, i);
 }
 
-void printf_i32(char * str, u32 i)
+void wprintf_i32(char * str, int i)
 {
-  
   PRINTF("%s: %d\n", str, i);
 }
 
-void printf_p(char * str, void *p)
-{
-  PRINTF("%s: %p\n", str, p);
-}
-
-void printf_pi(char * str, void *p)
+void wprintf_p(char * str, void *p)
 {
   PRINTF("%s: %p\n", str, p);
 }
