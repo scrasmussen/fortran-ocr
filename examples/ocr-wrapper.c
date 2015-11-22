@@ -51,7 +51,14 @@ u64 wgetArgc(void* dbPtr)
   return argNum;
 }
 
-void wocrDbCreate(ocrGuid_t * db, void ** addr, u64 len, u16 flags, ocrGuid_t *affinity, ocrInDbAllocator_t allocator)
+/*
+ * WARNING: The affinity argument type was changed to ocrGuid_t from ocrGuid_t*
+ *          and the Fortran interface changed to INTENT(IN), VALUE so that
+ *          NULL_GUID could be passed.  Otherwise a variable is required.  This is
+ *          temporary.  When affinity is actually used by the library this will have
+ *          to be fixed.
+ */
+void wocrDbCreate(ocrGuid_t * db, void ** addr, u64 len, u16 flags, ocrGuid_t affinity, ocrInDbAllocator_t allocator)
 {
 #if defined(VERBOSE)
   PRINTF("Pre-ocrDbCreate\n");
@@ -70,33 +77,32 @@ void wocrDbCreate(ocrGuid_t * db, void ** addr, u64 len, u16 flags, ocrGuid_t *a
   return;
 }
 
-ocrGuid_t* testNULL(ocrGuid_t *ptr, ocrGuid_t *addr)
+/* these are declared in ocr-types.F90 */
+extern u64 OFP_NULL_PARAMV;
+extern ocrGuid_t OFP_NULL_DEPV;
+
+ocrGuid_t* test_NULL_DEPV(ocrGuid_t *addr)
 {
-  if (ptr == NULL)
-    {
-    return NULL;
-    }
-  return addr;
+   return (addr == &OFP_NULL_DEPV) ? NULL : addr;
 }
 
-u64* test64NULL(u64 *ptr, u64 *addr)
+u64* test_NULL_PARAMV(u64 *addr)
 {
-  if (ptr == NULL)
-    {
-    return NULL;
-    }
-  return addr;
+   return (addr == &OFP_NULL_PARAMV) ? NULL : addr;
 }
 
 void wocrEdtCreate(ocrGuid_t *guid, ocrGuid_t templateGuid, u32 paramc, u64 * paramv, u32 depc, ocrGuid_t *depv, u16 flags, ocrGuid_t affinity, ocrGuid_t * outputEvent)
 {
 #if defined(VERBOSE)
   PRINTF("Pre-ocrEdtCreate\n");
-  PRINTF("Null is %p\n", NULL);
+  PRINTF("paramc, depc: %d %d\n", paramc, depc);
+  PRINTF("      params: %d %d\n", paramv[0], paramv[1]);
+  PRINTF("      paramv: %p %p\n", paramv, &OFP_NULL_PARAMV);
+  PRINTF("        depv: %p %p\n", depv, &OFP_NULL_DEPV);
 #endif
-  depv = testNULL(*depv, depv);
-  paramv = test64NULL(*paramv, paramv);
 
+  depv = test_NULL_DEPV(depv);
+  paramv = test_NULL_PARAMV(paramv);
 
   ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, depv, flags, affinity, outputEvent);
 
@@ -106,7 +112,7 @@ void wocrEdtCreate(ocrGuid_t *guid, ocrGuid_t templateGuid, u32 paramc, u64 * pa
   return;
 }
 
-void wocrEdtTemplateCreate_internal(ocrGuid_t *guid, ocrEdt_t funcPtr, u32 paramc, u32 depc, char* funcName)
+void wocrEdtTemplateCreate(ocrGuid_t *guid, ocrEdt_t funcPtr, u32 paramc, u32 depc)
 {
 #if defined(VERBOSE)
   PRINTF("Pre-ocrEdtTemplateCreate_internal\n");
@@ -127,7 +133,6 @@ void wocrEdtTemplateCreate_internal(ocrGuid_t *guid, ocrEdt_t funcPtr, u32 param
 #endif
   return;
 }
-
 
 void wocrShutdown()
 {
