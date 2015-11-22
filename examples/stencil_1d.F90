@@ -79,15 +79,15 @@ function FNC_settingsInit(paramc, paramv, depc, depv) result(returnGuid) &
   PTR_gSettingsH_0%NT_SYNC = paramv(4)
   PTR_gSettingsH_0%IT0 = paramv(5)
   PTR_gSettingsH_0%HR = paramv(6)
-  call printf_str("===paramv test" // C_NULL_CHAR);
-  call printf_i("paramv(1) = " // C_NULL_CHAR, paramv(1));
-  call printf_i("paramv(2) = " // C_NULL_CHAR, paramv(2));
-  call printf_i("paramv(3) = " // C_NULL_CHAR, paramv(3));
-  call printf_i("paramv(4) = " // C_NULL_CHAR, paramv(4));
-  call printf_i("paramv(5) = " // C_NULL_CHAR, paramv(5));
-  call printf_i("paramv(6) = " // C_NULL_CHAR, paramv(6));
+  call printf("===paramv test")
+  call printf("paramv(1) = ", paramv(1))
+  call printf("paramv(2) = ", paramv(2))
+  call printf("paramv(3) = ", paramv(3))
+  call printf("paramv(4) = ", paramv(4))
+  call printf("paramv(5) = ", paramv(5))
+  call printf("paramv(6) = ", paramv(6))
 
-  call printf_i("=In FNC_settingsInit" // C_NULL_CHAR, PTR_gSettingsH_0%HR)
+  call printf("=In FNC_settingsInit", PTR_gSettingsH_0%HR)
   returnGuid = NULL_GUID
 end function FNC_settingsInit
 
@@ -102,8 +102,8 @@ function FNC_globalInit(paramc, paramv, depc, depv) result (returnGuid) &
   integer(C_INT32_T) :: s_paramc, s_depc, s_idep, NR, ITO
   integer(C_INTPTR_T) :: DBK_gSettningsH_0, DBK_globalH
   type(C_PTR) :: PTR_gSettingsH_0, PTR_globalH, PTR_gSettingsH
-  call printf_str("=In FNC_globalInit" // C_NULL_CHAR)
-  
+
+  call printf("=In FNC_globalInit")
 
   returnGuid = NULL_GUID
 end function FNC_globalInit
@@ -133,25 +133,21 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
   integer(C_INT8_T) :: status
   type(C_PTR) :: PTR_globalH
   type(globalH_t) :: sizeofGlobalH_t
-  integer(C_INTPTR_T), dimension(1), parameter :: C_NULL_ARRAY = 0
-  integer(C_INT64_T), dimension(1), parameter :: C64_NULL_ARRAY = 0
-
 
   programArgv = depv(1)%ptr
   argc = getArgc(programArgv)
 
   if (argc == 7) then
      i = 1
-     call printf_str("ARGC == 7: NEED TO PROGRAM CONVERSIONS" // C_NULL_CHAR)
+     call printf("ARGC == 7: NEED TO PROGRAM CONVERSIONS")
      ! == ATOI SECTION THAT NEEDS FURTHER INVESTIGATION ==
   end if
-  call printf_i("npoints " // C_NULL_CHAR, npoints)
-  call printf_i("nranks " // C_NULL_CHAR, nranks)
-  call printf_i("ntimesteps " // C_NULL_CHAR, ntimesteps)
-  call printf_i("ntimesteps_sync " // C_NULL_CHAR, ntimesteps_sync)
-  call printf_i("itimestep0 " // C_NULL_CHAR, itimestep0)
-  call printf_i("halo_radius " // C_NULL_CHAR, halo_radius)
-
+  call printf("npoints ", npoints)
+  call printf("nranks ", nranks)
+  call printf("ntimesteps ", ntimesteps)
+  call printf("ntimesteps_sync ", ntimesteps_sync)
+  call printf("itimestep0 ", itimestep0)
+  call printf("halo_radius ", halo_radius)
   
   !===SETTINGS INIT PHASE===
   affinity = NULL_GUID
@@ -161,8 +157,7 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
   settingsInit_paramv = (/NPOINTS, NRANKS, NTIMESTEPS, NTIMESTEPS_SYNC, &
        ITIMESTEP0, HALO_RADIUS/)
   TS_settingsInit%FNC%ptr = C_FUNLOC(FNC_settingsInit)
-  call ocrEdtTemplateCreate(TS_settingsInit%TML, TS_settingsInit%FNC, 6, 1, &
-       C_NULL_CHAR)
+  call ocrEdtTemplateCreate(TS_settingsInit%TML, TS_settingsInit%FNC, 6, 1)
 
   !=====THIS NEEDS TO BE FIXED, TESTNULL IS NOT SENDING NULLPTR LIKE IT SHOULD
   call ocrEdtCreate( TS_settingsInit%EDT, TS_settingsInit%TML, EDT_PARAM_DEF, &
@@ -187,20 +182,16 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
   call ocrEventCreate(TS_globalFinalize_OET, OCR_EVENT_STICKY_T, false)
   
   TS_globalInit%FNC%ptr = C_FUNLOC(FNC_globalInit)
-  call ocrEdtTemplateCreate(TS_globalInit%TML, TS_globalInit%FNC, 0, 3, &
-       C_NULL_CHAR)
+  call ocrEdtTemplateCreate(TS_globalInit%TML, TS_globalInit%FNC, 0, 3)
 
   call ocrEdtCreate(TS_globalInit%EDT, TS_globalInit%TML, EDT_PARAM_DEF, &
        C64_NULL_ARRAY, EDT_PARAM_DEF, C_NULL_ARRAY, EDT_PROP_FINISH, &
        NULL_GUID, TS_globalInit%OET)
 
-  
-
-
-
-  call printf_str("Fin" // C_NULL_CHAR)
+  call printf("Fin")
   call ocrShutdown()
-  returnGuid = 0 ! C_NULL_PTR
+
+  returnGuid = NULL_GUID
 end function mainEdt
 
 end module m
