@@ -96,21 +96,11 @@ subroutine printf_str(str)
   character(len=*) :: str
 end subroutine printf_str
 
-subroutine wprintf_str(str) bind(C, name="wprintf_str")
-  character(len=1) :: str(*)
-end subroutine wprintf_str
-
 subroutine printf_i32(str, i)
   use ISO_C_BINDING
   character(len=*) :: str
   integer(C_INT32_t), value :: i
 end subroutine printf_i32
-
-subroutine wprintf_i32(str, i) bind(C, name="wprintf_i32")
-  use ISO_C_BINDING
-  character(len=1) :: str(*)
-  integer(C_INT32_t), value :: i
-end subroutine wprintf_i32
 
 subroutine printf_i64(str, i)
   use ISO_C_BINDING
@@ -118,27 +108,15 @@ subroutine printf_i64(str, i)
   integer(C_INT64_t), value :: i
 end subroutine printf_i64
 
-subroutine wprintf_i64(str, i) bind(C, name="wprintf_i64")
-  use ISO_C_BINDING
-  character(len=1) :: str(*)
-  integer(C_INT64_t), value :: i
-end subroutine wprintf_i64
-
 subroutine printf_r(str, x)
   character(len=*) :: str
   real, value :: x
 end subroutine printf_r
 
-subroutine wprintf_f(str, x) bind(C, name="wprintf_f")
+subroutine printf_p(str, p)
   use ISO_C_BINDING
   character(len=1) :: str(*)
-  real(C_FLOAT), value :: x
-end subroutine wprintf_f
-
-subroutine printf_p(str, i) bind(C, name="printf_p")
-  use ISO_C_BINDING
-  character(len=1) :: str(*)
-  type(C_PTR), value :: i
+  type(C_PTR), value :: p
 end subroutine printf_p
 
 end interface printf
