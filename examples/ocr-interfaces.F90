@@ -5,6 +5,7 @@
 
 module ocr_interfaces
 use ISO_C_BINDING
+use ocr_types
 
 interface
 
@@ -37,9 +38,15 @@ subroutine ocrDbCreate(db, addr, len, flags, affinity, allocator) &
   type(C_PTR), intent(OUT)  :: addr
   integer(C_INT64_T), intent(IN), value :: len
   integer(C_INT16_T), intent(IN), value :: flags
-  integer(C_INTPTR_T), intent(INOUT) :: affinity
+  integer(C_INTPTR_T), intent(IN), value :: affinity  ! NOTE standard says INOUT variable?
   integer(C_INT32_T), intent(IN), value :: allocator
 end subroutine ocrDbCreate
+
+subroutine ocrDbRelease(db) BIND(c, name='ocrDbRelease')
+  use :: ISO_C_BINDING
+  implicit none
+  integer(C_INTPTR_T), intent(in), value :: db
+end subroutine ocrDbRelease
 
 subroutine ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, depv, &
      properties, affinity, outputEvent) &
@@ -58,17 +65,14 @@ subroutine ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, depv, &
   integer(C_INTPTR_T), intent(INOUT) :: outputEvent
 end subroutine ocrEdtCreate
 
-! ocrEdtTemplateCreate, _internal added so symbols match
-subroutine ocrEdtTemplateCreate(guid, funcPtr, paramc, depc, &
-     funcName) BIND (c, name='wocrEdtTemplateCreate_internal')
+subroutine ocrEdtTemplateCreate(guid, funcPtr, paramc, depc) &
+     BIND (C, name='wocrEdtTemplateCreate')
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
   integer(C_INTPTR_T), intent(OUT) :: guid
   type(ocrEdt_t), intent(IN), value  :: funcPtr
-  integer(C_INT32_T), intent(IN), value :: paramc
-  integer(C_INT32_T), intent(IN), value :: depc
-  character(C_CHAR), intent(IN), value :: funcName
+  integer(C_INT32_T), intent(IN), value :: paramc, depc
 end subroutine ocrEdtTemplateCreate
 
 subroutine ocrShutdown() &
@@ -83,40 +87,53 @@ function getArgc(dbPtr) result(argNum) &
   integer(C_INT64_T) :: argNum
 end function getArgc
 
-! function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
-!      BIND (c, name='wmainEdt')
-!   use ISO_C_BINDING
-!   use :: ocr_types
-!   implicit none
-!   integer(C_INTPTR_T) :: returnGuid
-!   integer(C_INT32_T), intent(IN) :: paramc
-!   integer(C_INT64_T), intent(IN) :: paramv
-!   ! type(C_PTR), intent(IN) :: paramv
-!   integer(C_INT32_T), intent(IN) :: depc
-!   type(ocrEdtDep_t), intent(IN) :: depv
-! end function mainEdt
+end interface
 
-subroutine printf_str(str) bind(C, name="printf_str")
-  character(len=1) :: str(*)
+
+interface printf
+
+subroutine printf_str(str)
+  character(len=*) :: str
 end subroutine printf_str
 
-subroutine printf_i(str, i) bind(C, name="printf_i")
-  use ISO_C_BINDING
+subroutine wprintf_str(str) bind(C, name="wprintf_str")
   character(len=1) :: str(*)
-  integer(C_INT64_t), value :: i
-end subroutine printf_i
+end subroutine wprintf_str
 
-subroutine printf_f(str, x) bind(C, name="printf_f")
+subroutine printf_i32(str, i)
   use ISO_C_BINDING
-  character(len=1) :: str(*)
-  real(C_FLOAT), value :: x
-end subroutine printf_f
+  character(len=*) :: str
+  integer(C_INT32_t), value :: i
+end subroutine printf_i32
 
-subroutine printf_i32(str, i) bind(C, name="printf_i32")
+subroutine wprintf_i32(str, i) bind(C, name="wprintf_i32")
   use ISO_C_BINDING
   character(len=1) :: str(*)
   integer(C_INT32_t), value :: i
-end subroutine printf_i32
+end subroutine wprintf_i32
+
+subroutine printf_i64(str, i)
+  use ISO_C_BINDING
+  character(len=*) :: str
+  integer(C_INT64_t), value :: i
+end subroutine printf_i64
+
+subroutine wprintf_i64(str, i) bind(C, name="wprintf_i64")
+  use ISO_C_BINDING
+  character(len=1) :: str(*)
+  integer(C_INT64_t), value :: i
+end subroutine wprintf_i64
+
+subroutine printf_r(str, x)
+  character(len=*) :: str
+  real, value :: x
+end subroutine printf_r
+
+subroutine wprintf_f(str, x) bind(C, name="wprintf_f")
+  use ISO_C_BINDING
+  character(len=1) :: str(*)
+  real(C_FLOAT), value :: x
+end subroutine wprintf_f
 
 subroutine printf_p(str, i) bind(C, name="printf_p")
   use ISO_C_BINDING
@@ -124,16 +141,7 @@ subroutine printf_p(str, i) bind(C, name="printf_p")
   type(C_PTR), value :: i
 end subroutine printf_p
 
-subroutine printf_pi(str, i) bind(C, name="printf_pi")
-  use ISO_C_BINDING
-  character(len=1) :: str(*)
-  integer(C_INTPTR_T), value :: i
-end subroutine printf_pi
-
-end interface
-
-integer(C_INTPTR_T), bind(c, name="OCR_NULL_DEPV") :: NULL_DEPV(1)
-integer, parameter :: OCR_JUNK = 0
+end interface printf
 
 end module ocr_interfaces
 
