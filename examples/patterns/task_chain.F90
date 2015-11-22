@@ -5,7 +5,7 @@
 !   Code segment EDTs will have to be outlined from original code at segment
 !   boundaries where communication or synchronization occurs.  This example
 !   shows how EDT are chained together by connecting the output event from
-!   one segment to an input slot on the succeeding code segment.
+!   one segment to an input slot on the succeeding segment EDT.
 !
 !------------------------------------------------------------------------------
 module task_chain_mod
