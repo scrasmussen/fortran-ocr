@@ -1,4 +1,4 @@
-OCR_ROOT = $(HOME)/xstack
+OCR_ROOT = $(HOME)/D-TEC/ocr-xstack
 OCR_CONFIG = $(OCR_ROOT)/ocr/install/x86/config/default.cfg
 
 CC = gcc
@@ -28,9 +28,13 @@ all: hello
 
 basic: $(OBJS) basic.F90 basic.o objs
 	$(FC) -o basic basic.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
+	@echo '--Running--'
+	@./basic
 
 hello: $(OBJS) hello.F90 hello.o objs
 	$(FC) -o hello hello.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
+	@echo '--Running--'
+	@./hello
 
 ex2: $(OBJS) ex2.F90 ex2.o objs
 	$(FC) -o ex2 ex2.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
