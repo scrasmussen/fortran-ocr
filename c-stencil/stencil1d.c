@@ -6,6 +6,9 @@
 #include "serialStencil.h"
 #include "cocr.h"
 
+//REMOVE THESE LATER
+#include <unistd.h>
+
 #define NT 1
 #define NX 4
 #define H 1
@@ -16,10 +19,9 @@ ocrGuid_t mainEdt(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
 {
   PRINTF("==Starting==\n");
   /* u64 np = 2; */
-  s32 np = 2;
-  s64 n=2, nx=4, t=T; 
-  t = 1;
-  PRINTF("np=%u nx=%u t=%u\n", np, nx, t);
+  s64 np = 3, nx = 4, h = H, t = T, numsleep = 0; 
+  t = 2;
+  PRINTF("np=%u nx=%u h=%u t=%u\n", np, nx, h, t);
   // Initialize array A
   /* USER
   double A[n*M+2];
@@ -34,28 +36,36 @@ ocrGuid_t mainEdt(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
      A(NX+1:NX+H) = 0.0 
   */
   // Become
-  haloArray_t haloArray[np];
-  createHaloArrays(haloArray, np, nx, t);
+  HaloArray_t haloArray[np];
 
-  /* for (int i = 0; i < n*m + 2; ++i) */
-  /*     A = i; */
-  
+  /* createHaloArrays(haloArray, np, nx, h, t); */
+  /* initHaloArrays(haloArray, np, nx); */
+  /* startRecursion(haloArray, np, nx, h, t); */
+
+  // second way to do this 
+
+  HaloArray_t *haloArrayPtr[np];
+  createSingleHaloArrays(haloArrayPtr, np, nx, h, t);
+  initSingleHaloArrays(haloArrayPtr, np, nx, t);
+
+  /* HaloArray_t * ptr = haloArray[1].ptr; */
+  /* PRINTF("rank = %u for ptr = %p\n", ptr->rank, ptr); */
+
+  int i;
+
+  for (i = 0; i < np; ++i)
+    ocrEventSatisfy(haloArrayPtr[i]->evenTriggerEvent, NULL);
 
 
+  numsleep = 1;
+  PRINTF("==sleep %u==\n", numsleep);
+  sleep(numsleep);
+  PRINTF("ocrShutdown\n");
   ocrShutdown();
   PRINTF("Fin\n");
   return NULL_GUID;
 }
 
-void initialize(double *A, u64 n, u64 m, double boundary)
-{
-  u64 i, end = n*m;
-  for (i = 0; i < end; ++i)
-    A[i] = 0;
-  A[0] = boundary;
-  A[end+1] = boundary;
-  return;
-}
 
 ocrGuid_t stickyEvent(buffer_t *in, double *A, ocrGuid_t *event,
 		 ocrEdtDep_t *depv, int i, int j)
