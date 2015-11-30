@@ -7,7 +7,7 @@ FC = gfortran
 INCLUDES = -I$(OCR_ROOT)/ocr/install/x86/include -I..
 OBJS = ../ocr-wrapper.o ../ocr-types.o ../ocr-interfaces.o ../wprintf.o ../printf.o
 LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
-EXES = task_chain
+EXES = task_chain loop fork_join
 
 CFLAGS = -g ${INCLUDES}
 FFLAGS = ${INCLUDES}
@@ -26,9 +26,15 @@ all: ${EXES}
 task_chain: task_chain.F90 task_chain.o
 	$(FC) -o task_chain task_chain.o ${FFLAGS} ${LDFLAGS} ${OBJS} ${LIBS}
 
-check: task_chain
+loop: loop.F90 loop.o
+	$(FC) -o loop loop.o ${FFLAGS} ${LDFLAGS} ${OBJS} ${LIBS}
+
+fork_join: fork_join.F90 fork_join.o
+	$(FC) -o fork_join fork_join.o ${FFLAGS} ${LDFLAGS} ${OBJS} ${LIBS}
+
+check: fork_join
 	@echo "---------------"
-	@task_chain
+	@fork_join
 
 clean:
 	rm -f *~ *.o *.mod ${EXES}
