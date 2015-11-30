@@ -44,6 +44,8 @@ void createOcrTypes()
   fprintf(f, "integer, parameter :: i32 = C_INT32_T\n");
   fprintf(f, "integer, parameter :: i64 = C_INT64_T\n\n");
 
+  fprintf(f, "integer, parameter :: ocrGuid_k = C_INTPTR_T\n\n");
+
   fprintf(f, "integer(C_INTPTR_T), bind(c, name=\"OFP_NULL_DEPV\"  ) :: NULL_DEPV(1)      = [-1]\n");
   fprintf(f, "integer(C_INT64_T),  bind(c, name=\"OFP_NULL_PARAMV\") :: NULL_PARAMV(1)    = [-1]\n");
   fprintf(f, "integer(C_INTPTR_T), bind(C, name=\"GUID_NULL_PTR\"  ) :: GUID_NULL_PTR(1)  = [-1]\n");
@@ -55,7 +57,6 @@ void createOcrTypes()
 	  0);
   fprintf(f, "integer(C_INT32_T), parameter :: NO_ALLOC = %i\n\n", 
 	  NO_ALLOC);
-  
 
   ocrDbAccessMode_t dbaccess = DB_MODE_NULL;
   fprintf(f, "integer(C_INT32_T), parameter :: DB_MODE_NULL = %i\n",

@@ -19,6 +19,8 @@ end type ocrEdt_t
 integer, parameter :: i32 = C_INT32_T
 integer, parameter :: i64 = C_INT64_T
 
+integer, parameter :: ocrGuid_k = C_INTPTR_T
+
 integer(C_INTPTR_T), bind(c, name="OFP_NULL_DEPV"  ) :: NULL_DEPV(1)      = [-1]
 integer(C_INT64_T),  bind(c, name="OFP_NULL_PARAMV") :: NULL_PARAMV(1)    = [-1]
 integer(C_INTPTR_T), bind(C, name="GUID_NULL_PTR"  ) :: GUID_NULL_PTR(1)  = [-1]
