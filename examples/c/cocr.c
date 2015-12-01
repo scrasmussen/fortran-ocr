@@ -33,18 +33,21 @@ ocrGuid_t recFunc(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
   // odd do  oppisite.
   if (t%2 == 0) {
     ocrEdtCreate(&ptr->evenTrigger.guid, recTemplate, EDT_PARAM_DEF, NULL, EDT_PARAM_DEF, NULL, EDT_PROP_NONE, NULL_GUID, NULL);
+
     ocrAddDependence(dataGuid, ptr->oddTrigger.guid, 0, DB_MODE_RW);
+
     ocrEventCreate(&ptr->oddTrigger.event,OCR_EVENT_ONCE_T,EVT_PROP_NONE);
-    ocrAddDependence(ptr->oddTrigger.event, ptr->oddTrigger.guid, 1, 
-		     DB_MODE_RW);
-    ocrEventSatisfy(ptr->oddTrigger.event, NULL);
+    ocrAddDependence(ptr->oddTrigger.event, ptr->oddTrigger.guid, 1,
+    		     DB_MODE_RW);
     ocrEventCreate(&ptr->left.oddTriggerEvent,OCR_EVENT_ONCE_T,EVT_PROP_NONE);
     ocrAddDependence(ptr->left.oddTriggerEvent, *ptr->left.oddTriggerGuid, 2,
 		     DB_MODE_RW);
-    ocrEventSatisfy(ptr->left.oddTriggerEvent, NULL);
     ocrEventCreate(&ptr->right.oddTriggerEvent,OCR_EVENT_ONCE_T,EVT_PROP_NONE);
     ocrAddDependence(ptr->right.oddTriggerEvent, *ptr->right.oddTriggerGuid, 3,
 		     DB_MODE_RW);
+
+    ocrEventSatisfy(ptr->left.oddTriggerEvent, NULL);
+    ocrEventSatisfy(ptr->oddTrigger.event, NULL);
     ocrEventSatisfy(ptr->right.oddTriggerEvent, NULL);
   }
   else {
@@ -154,3 +157,4 @@ void createHaloArrays(HaloArray_t *haloArray[], u64 np, u64 nx, u64 h, u64 t)
   }
   return;
 }
+
