@@ -16,16 +16,6 @@ type, bind(C) :: ocrEdt_t
   type(C_FUNPTR) :: ptr
 end type ocrEdt_t
 
-integer, parameter :: i32 = C_INT32_T
-integer, parameter :: i64 = C_INT64_T
-
-integer, parameter :: ocrGuid_k = C_INTPTR_T
-
-integer(C_INTPTR_T), bind(c, name="OFP_NULL_DEPV"  ) :: NULL_DEPV(1)      = [-1]
-integer(C_INT64_T),  bind(c, name="OFP_NULL_PARAMV") :: NULL_PARAMV(1)    = [-1]
-integer(C_INTPTR_T), bind(C, name="GUID_NULL_PTR"  ) :: GUID_NULL_PTR(1)  = [-1]
-integer(C_INT64_T),  bind(C, name="INT64_NULL_PTR" ) :: INT64_NULL_PTR(1) = [-1]
-
 integer(C_INTPTR_T), parameter :: NULL_GUID = 0
 integer(C_INT64_T), parameter :: C_NULL = 0
 integer(C_INT32_T), parameter :: NO_ALLOC = 0
