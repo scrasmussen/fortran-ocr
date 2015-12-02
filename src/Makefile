@@ -1,16 +1,13 @@
-OCR_ROOT = $(HOME)/xstack
-OCR_CONFIG = $(OCR_ROOT)/ocr/install/x86/config/default.cfg
-
+include Include.mk
 CC = gcc
 FC = gfortran
 
-INCLUDES = -I$(OCR_ROOT)/ocr/install/x86/include/
 OBJS = ocr-wrapper.o ocr-types.o ocr-interfaces.o wprintf.o printf.o
 LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
 EXES = basic ex2 stencil_1d #hello
 
-CFLAGS = -g ${INCLUDES}
-FFLAGS = ${INCLUDES}
+CFLAGS = -g ${OCR_INCLUDE}
+FFLAGS = ${OCR_INCLUDE}
 LDFLAGS = -lpthread
 
 .SUFFIXES: .f90 .F90 .o
@@ -32,7 +29,7 @@ objs: $(OBJS)
 types: create-types type-mod
 
 create-types: create-ocr-types.c
-	$(CC) create-ocr-types.c $(INCLUDES) -o create-ocr-types
+	$(CC) create-ocr-types.c $(OCR_INCLUDE) -o create-ocr-types
 	./create-ocr-types
 
 type-mod: ocr-types.F90
