@@ -1,16 +1,14 @@
-OCR_ROOT = $(HOME)/D-TEC/ocr-xstack
-OCR_CONFIG = $(OCR_ROOT)/ocr/install/x86/config/default.cfg
-
+include ../../src/Include.mk
 CC = gcc
 FC = gfortran
+SRC = ../../src
 
-INCLUDES = -I$(OCR_ROOT)/ocr/install/x86/include/
-OBJS = ocr-wrapper.o ocr-types.o ocr-interfaces.o wprintf.o printf.o
+OBJS = $(SRC)/ocr-wrapper.o $(SRC)/ocr-types.o $(SRC)/ocr-interfaces.o $(SRC)/wprintf.o $(SRC)/printf.o
 LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
-EXES = hello basic ex2 stencil_1d
+EXES = hello ex1 ex2 stencil_1d
 
-CFLAGS = -g ${INCLUDES}
-FFLAGS = ${INCLUDES}
+CFLAGS = -g ${OCR_INCLUDE}
+FFLAGS = ${OCR_INCLUDE}
 LDFLAGS = -lpthread
 
 .SUFFIXES: .f90 .F90 .o
@@ -24,17 +22,17 @@ LDFLAGS = -lpthread
 .c.o:
 	$(CC) -c $(@:.o=.c) ${CFLAGS}
 
-all: hello
-
-basic: $(OBJS) basic.F90 basic.o objs
-	$(FC) -o basic basic.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
-	@echo '--Running--'
-	@./basic
+all: objs
 
 hello: $(OBJS) hello.F90 hello.o objs
 	$(FC) -o hello hello.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
 	@echo '--Running--'
 	@./hello
+
+ex1: $(OBJS) ex1.F90 ex1.o objs
+	$(FC) -o ex1 ex1.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
+	echo '--Running--'
+	./ex2
 
 ex2: $(OBJS) ex2.F90 ex2.o objs
 	$(FC) -o ex2 ex2.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
@@ -64,4 +62,4 @@ check: hello
 	@hello
 
 clean:
-	rm -f *~ *.o *.mod ${EXES} create-ocr-types
+	rm -f *~ *.o *.mod ${EXES} create-ocr-types hello
