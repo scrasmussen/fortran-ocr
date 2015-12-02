@@ -1,16 +1,13 @@
-OCR_ROOT = $(HOME)/D-TEC/ocr-xstack
-OCR_CONFIG = $(OCR_ROOT)/ocr/install/x86/config/default.cfg
+include ../../src/Include.mk
 
 CC = gcc
 FC = gfortran
-
-INCLUDES = -I$(OCR_ROOT)/ocr/install/x86/include -I..
 OBJS = ../ocr-wrapper.o ../ocr-types.o ../ocr-interfaces.o ../wprintf.o ../printf.o
 LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
 EXES = task_chain loop fork_join
 
-CFLAGS = -g ${INCLUDES}
-FFLAGS = ${INCLUDES}
+CFLAGS = -g ${OCR_INCLUDE}
+FFLAGS = ${OCR_INCLUDE}
 LDFLAGS = -lpthread
 
 .SUFFIXES: .F90 .o
