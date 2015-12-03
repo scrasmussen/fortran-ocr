@@ -2,7 +2,7 @@ include Include.mk
 CC = gcc
 FC = gfortran
 
-OBJS = ocr-wrapper.o ocr-types.o ocr-interfaces.o wprintf.o printf.o fortran-ocr.o printc.o
+OBJS = ocr-wrapper.o ocr-types.o ocr-interfaces.o wprintf.o printf.o ocr-fortran.o printc.o
 LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
 EXES = basic ex2 stencil_1d #hello
 
@@ -26,7 +26,7 @@ all: types objs
 objs: $(OBJS)
 	-@echo "--Compiled--"
 
-types: create-types ocr-types fortran-ocr
+types: create-types ocr-types ocr-fortran
 
 create-types: create-ocr-types.c
 	$(CC) create-ocr-types.c $(OCR_INCLUDE) -o create-ocr-types
@@ -35,8 +35,8 @@ create-types: create-ocr-types.c
 ocr-types: ocr-types.F90
 	$(FC) -c ocr-types.F90 
 
-fortran-ocr: fortran-ocr.F90
-	$(FC) -c fortran-ocr.F90 
+ocr-fortran: ocr-fortran.F90
+	$(FC) -c ocr-fortran.F90 
 
 clean:
 	rm -f *~ *.o *.mod $(EXES) create-ocr-types
