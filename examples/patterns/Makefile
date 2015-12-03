@@ -1,4 +1,4 @@
-pinclude ../../src/Include.mk
+include ../../src/Include.mk
 SRC=../../src
 
 CC = gcc
