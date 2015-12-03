@@ -5,6 +5,39 @@
 
 /* #define VERBOSE */
 /* #define VERBOSEARG */
+ocrGuid_t* testNULL(ocrGuid_t *ptr, ocrGuid_t *addr)
+{
+  if (ptr == NULL)
+    {
+    return NULL;
+    }
+  return addr;
+}
+
+u64* test64NULL(u64 *ptr, u64 *addr)
+{
+  if (ptr == NULL)
+    {
+    return NULL;
+    }
+  return addr;
+}
+
+
+void wocrAbort(u8 errorCode)
+{
+#if defined(VERBOSE)
+  PRINTF("Pre-ocrAddDependence\n");
+  PRINTF("-source = %p\n", source);
+  PRINTF("-destination = %p\n", destination);
+#endif
+  ocrAbort(errorCode);
+#if defined(VERBOSE)
+  PRINTF("Post-ocrAddDependence\n");
+#endif
+  
+}
+
 
 void wocrAddDependence(ocrGuid_t source, ocrGuid_t destination, u32 slot, ocrDbAccessMode_t mode)
 {
@@ -21,35 +54,6 @@ void wocrAddDependence(ocrGuid_t source, ocrGuid_t destination, u32 slot, ocrDbA
 #endif
 }
 
-void wocrEventCreate(ocrGuid_t* guid, ocrEventTypes_t eventType, u16 flags)
-{
-  u8 statusCode;
-#if defined(VERBOSE)
-  PRINTF("Pre-ocrEventCreate\n");
-#endif
-  
-  statusCode = ocrEventCreate(guid, eventType, flags);
-
-#if defined(VERBOSE)
-  PRINTF("argNum = %d\n", argNum);
-  PRINTF("Post-ocrEventCreate\n");
-#endif
-  return; //statusCode
-}
-
-u64 wgetArgc(void* dbPtr)
-{
-  u64 argNum;
-#if defined(VERBOSE)
-  PRINTF("Pre-getArgc\n");
-#endif
-  argNum = getArgc(dbPtr);
-#if defined(VERBOSE)
-  PRINTF("argNum = %d\n", argNum);
-  PRINTF("Post-getArgc\n");
-#endif
-  return argNum;
-}
 
 void wocrDbCreate(ocrGuid_t * db, void ** addr, u64 len, u16 flags, ocrGuid_t *affinity, ocrInDbAllocator_t allocator)
 {
@@ -70,25 +74,7 @@ void wocrDbCreate(ocrGuid_t * db, void ** addr, u64 len, u16 flags, ocrGuid_t *a
   return;
 }
 
-ocrGuid_t* testNULL(ocrGuid_t *ptr, ocrGuid_t *addr)
-{
-  if (ptr == NULL)
-    {
-    return NULL;
-    }
-  return addr;
-}
 
-u64* test64NULL(u64 *ptr, u64 *addr)
-{
-  if (ptr == NULL)
-    {
-    return NULL;
-    }
-  return addr;
-}
-
-#define VERBOSE
 void wocrEdtCreate(ocrGuid_t *guid, ocrGuid_t templateGuid, u32 paramc, u64 * paramv, u32 depc, ocrGuid_t *depv, u16 flags, ocrGuid_t affinity, ocrGuid_t * outputEvent)
 {
 #if defined(VERBOSE)
@@ -106,7 +92,7 @@ void wocrEdtCreate(ocrGuid_t *guid, ocrGuid_t templateGuid, u32 paramc, u64 * pa
 #endif
   return;
 }
-#undef VERBOSE
+
 
 void wocrEdtTemplateCreate_internal(ocrGuid_t *guid, ocrEdt_t funcPtr, u32 paramc, u32 depc, char* funcName)
 {
@@ -122,12 +108,40 @@ void wocrEdtTemplateCreate_internal(ocrGuid_t *guid, ocrEdt_t funcPtr, u32 param
   PRINTF("EDT_PARAM_UNK=%u\n", (u32)-1);
   PRINTF("EDT_PARAM_DEF=%u\n", EDT_PARAM_DEF);
 #endif
-
   ocrEdtTemplateCreate(guid, funcPtr, paramc, depc);
 #if defined(VERBOSE)
   PRINTF("Post-ocrEdtTemplateCreate_internal\n");
 #endif
   return;
+}
+
+
+void wocrEventCreate(ocrGuid_t* guid, ocrEventTypes_t eventType, u16 flags)
+{
+  u8 statusCode;
+#if defined(VERBOSE)
+  PRINTF("Pre-ocrEventCreate\n");
+#endif
+  statusCode = ocrEventCreate(guid, eventType, flags);
+#if defined(VERBOSE)
+  PRINTF("argNum = %d\n", argNum);
+  PRINTF("Post-ocrEventCreate\n");
+#endif
+  return; //statusCode
+}
+
+
+void wocrEventSatisfy(ocrGuid_t eventGuid, ocrGuid_t dataGuid)
+{
+  u8 statusCode;
+#if defined(VERBOSE)
+  PRINTF("Pre-ocrEventSatisfy\n");
+#endif
+  statusCode = ocrEventSatisfy(eventGuid, dataGuid);
+#if defined(VERBOSE)
+  PRINTF("Post-ocrEventSatisfy\n");
+#endif
+  return; // statusCode;
 }
 
 
@@ -141,4 +155,19 @@ void wocrShutdown()
   PRINTF("Post-ocrShutdown\n");
 #endif
   return;
+}
+
+
+u64 wgetArgc(void* dbPtr)
+{
+  u64 argNum;
+#if defined(VERBOSE)
+  PRINTF("Pre-getArgc\n");
+#endif
+  argNum = getArgc(dbPtr);
+#if defined(VERBOSE)
+  PRINTF("argNum = %d\n", argNum);
+  PRINTF("Post-getArgc\n");
+#endif
+  return argNum;
 }
