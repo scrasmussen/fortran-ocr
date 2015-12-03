@@ -3,26 +3,26 @@ CC = gcc
 FC = gfortran
 SRC = ../../src
 
-OBJS = $(SRC)/ocr-wrapper.o $(SRC)/ocr-types.o $(SRC)/ocr-interfaces.o $(SRC)/wprintf.o $(SRC)/printf.o
+OBJS = $(SRC)/printc.o $(SRC)/printf.o $(SRC)/ocr-wrapper.o $(SRC)/ocr-types.o $(SRC)/ocr-interfaces.o $(SRC)/wprintf.o 
 LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
 EXES = hello ex1 ex2 stencil_1d
 
-CFLAGS = -g ${OCR_INCLUDE}
-FFLAGS = ${OCR_INCLUDE}
+CFLAGS = -g $(OCR_INCLUDE)
+FFLAGS = $(OCR_INCLUDE) -I$(SRC)
 LDFLAGS = -lpthread
 
 .SUFFIXES: .f90 .F90 .o
 
 .f90.o:
-	$(FC) -c $(@:.o=.f90) ${FFLAGS}
+	$(FC) -c $(@:.o=.f90) $(FFLAGS)
 
 .F90.o:
-	$(FC) -c $(@:.o=.F90) ${FFLAGS}
+	$(FC) -c $(@:.o=.F90) $(FFLAGS)
 
 .c.o:
-	$(CC) -c $(@:.o=.c) ${CFLAGS}
+	$(CC) -c $(@:.o=.c) $(CFLAGS)
 
-all: objs
+all: objs hello
 
 hello: $(OBJS) hello.F90 hello.o objs
 	$(FC) -o hello hello.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
@@ -62,4 +62,4 @@ check: hello
 	@hello
 
 clean:
-	rm -f *~ *.o *.mod ${EXES} create-ocr-types hello
+	rm -f *~ *.o *.mod $(EXES) create-ocr-types hello
