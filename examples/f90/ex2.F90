@@ -13,15 +13,15 @@ function appEdt(paramc, paramv, depc, depv) result(returnGuid) BIND(c)
   use ocr_types
   use :: ocr_interfaces, only : printf_str
   implicit none
-  integer(C_INTPTR_T) :: returnGuid, dataguid
-  integer(C_INT32_T), intent(in) :: paramc
-  integer(C_INT64_T), intent(in), dimension(*) :: paramv
-  integer(C_INT32_T), intent(in) :: depc
+  integer(ocrGuid_k) :: returnGuid, dataguid
+  integer(u32), intent(in) :: paramc
+  integer(u64), intent(in), dimension(*) :: paramv
+  integer(u32), intent(in) :: depc
   type(ocrEdtDep_t), intent(in), dimension(*), target :: depv
   type(C_PTR) :: data
-  integer(C_INT64_T), pointer :: test(:)
-  integer(C_INT64_T) :: i, val
-  integer(C_INT64_T), pointer :: a(:)
+  integer(u64), pointer :: test(:)
+  integer(u64) :: i, val
+  integer(u64), pointer :: a(:)
 
   data = depv(1)%ptr
   dataguid = depv(1)%guid
@@ -42,32 +42,32 @@ end function appEdt
 
 function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
      BIND (c, name='mainEdt')
-  integer(C_INTPTR_T) :: returnGuid
-  integer(C_INT32_T), intent(in) :: paramc
-  integer(C_INT64_T), intent(in) :: paramv
-  integer(C_INT32_T), intent(in) :: depc
+  integer(ocrGuid_k) :: returnGuid
+  integer(u32), intent(in) :: paramc
+  integer(u64), intent(in) :: paramv
+  integer(u32), intent(in) :: depc
   type(ocrEdtDep_t), intent(in) :: depv
   ! params
-  integer(C_INT32_T) :: fparamc
-  integer(C_INT32_T) :: fdepc
-  integer(C_INTPTR_T) :: templateGuid, edtGuid
+  integer(u32) :: fparamc
+  integer(u32) :: fdepc
+  integer(ocrGuid_k) :: templateGuid, edtGuid
   type(ocrEdt_t) :: ptr 
   type(C_PTR) :: outputEvent
-  integer(C_INT64_T) :: arraySize, index
-  integer(C_INT64_T), dimension(2) :: nparamv
-  integer(C_INT64_T) :: u64
-  integer(C_INT32_T) :: allocator
+  integer(u64) :: arraySize, index
+  integer(u64), dimension(2) :: nparamv
+  integer(u64) :: u64
+  integer(u32) :: allocator
   ! integer(C_INT64_T) :: dataArray
   type(C_PTR) :: dataArray
-  integer(C_INT16_T) :: flags
-  integer(C_INTPTR_T) :: dataGuid
-  integer(C_INTPTR_T), dimension(1) :: dataGuidArray
+  integer(u16) :: flags
+  integer(ocrGuid_k) :: dataGuid
+  integer(ocrGuid_k), dimension(1) :: dataGuidArray
   ! type(C_PTR) :: dataGuid
-  integer(C_INTPTR_T) :: affinity
+  integer(ocrGuid_k) :: affinity
   integer(C_INT64_T), pointer :: a(:)
-  integer(C_INT64_T) :: i
+  ! integer(u64) :: i
   type(C_PTR) :: locval
-  integer(C_INTPTR_T) :: test
+  integer(ocrGuid_k) :: test
 
 
   ! create template for appEdt
@@ -107,18 +107,8 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
 
   ! call c_f_pointer(edtGuid, test, 1);
   call printf_i("===edtGuid" // C_NULL_CHAR , edtGuid)
-  ! call printf_p("test" // C_NULL_CHAR , test)
-
 
   returnGuid = 0 ! C_NULL_PTR
 end function mainEdt
 
 end module m
-
-! interface
-!    subroutine test() BIND(c)
-!      use ISO_C_BINDING
-!      use :: ocr_interfaces, only : printf_str
-!    end subroutine test
-! end interface
-
