@@ -32,7 +32,7 @@ hello: $(OBJS) hello.F90 hello.o objs
 ex1: $(OBJS) ex1.F90 ex1.o objs
 	$(FC) -o ex1 ex1.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
 	echo '--Running--'
-	./ex2
+	./ex1
 
 ex2: $(OBJS) ex2.F90 ex2.o objs
 	$(FC) -o ex2 ex2.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
