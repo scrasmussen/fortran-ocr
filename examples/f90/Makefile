@@ -1,14 +1,13 @@
 include ../../src/Include.mk
 CC = gcc
 FC = gfortran
-SRC = ../../src
+SRC = $(HOME)/fortran-ocr/src
 
-OBJS = $(SRC)/printc.o $(SRC)/printf.o $(SRC)/ocr-wrapper.o $(SRC)/ocr-types.o $(SRC)/ocr-interfaces.o $(SRC)/wprintf.o 
-LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
+LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr $(SRC)/ocrFortranLib.a
 EXES = hello ex1 ex2 stencil_1d
 
 CFLAGS = -g $(OCR_INCLUDE)
-FFLAGS = $(OCR_INCLUDE) -I$(SRC)
+FFLAGS = $(OCR_INCLUDE) -I$(SRC) -J$(SRC)
 LDFLAGS = -lpthread
 
 .SUFFIXES: .f90 .F90 .o
@@ -22,25 +21,25 @@ LDFLAGS = -lpthread
 .c.o:
 	$(CC) -c $(@:.o=.c) $(CFLAGS)
 
-all: objs hello
+all: hello
 
 hello: $(OBJS) hello.F90 hello.o objs
-	$(FC) -o hello hello.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
+	$(FC) -o hello hello.o $(FFLAGS) $(LDFLAGS) $(LIBS)
 	@echo '--Running--'
 	@./hello
 
 ex1: $(OBJS) ex1.F90 ex1.o objs
-	$(FC) -o ex1 ex1.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
+	$(FC) -o ex1 ex1.o $(FFLAGS) $(LDFLAGS) $(LIBS) 
 	echo '--Running--'
 	./ex1
 
 ex2: $(OBJS) ex2.F90 ex2.o objs
-	$(FC) -o ex2 ex2.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
+	$(FC) -o ex2 ex2.o $(FFLAGS) $(LDFLAGS) $(LIBS)
 	echo '--Running--'
 	./ex2
 
 stencil: $(OBJS) stencil_1d.F90 stencil_1d.o objs
-	$(FC) -o stencil_1d stencil_1d.o $(FFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
+	$(FC) -o stencil_1d stencil_1d.o $(FFLAGS) $(LDFLAGS) $(LIBS)
 	echo '--Running--'
 	./stencil_1d
 
