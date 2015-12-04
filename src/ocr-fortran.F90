@@ -17,9 +17,20 @@ end module ocr_fortran_types
 
 module ocr_fortran
 use ISO_C_BINDING
+use ocr_types
 implicit none
 
 contains
+
+  ! function shutdownFnc(paramc, paramv, depc, depv) result(rtn)
+  !   integer(u32), intent(in) :: paramc, depc
+  !   integer(u64), intent(in) :: paramv(*)
+  !   type(ocrEdtDep_t), intent(in) :: depv(*)
+  !   integer(ocrGuid_k) :: rtn
+
+  !   rtn = NULL_GUID
+  ! end function shutdownFnc
+
   function getArgv_i64(ptr, str, err) result(np)
     ! integer(C_INTPTR_T), intent(IN) :: ptr
     type(C_PTR), intent(IN) :: ptr
@@ -29,8 +40,10 @@ contains
 
     start = index(str, '-np')
     if (start .eq. 0) then
-       np = 0
+       err = .true.
        return
+    else
+       err = .false.
     end if
 
     start = start + 2
@@ -43,16 +56,20 @@ contains
        end = end + 1
     end do
 
+    ! If string ends with the np value, a runtime error occurs
     read (str(start+1:end), '(I10)') np
     return
   end function getArgv_i64
   
   function spmd_create_finalize_edt(n) result(edt_finalize)
     integer(C_INT64_T), intent(IN) :: n
-    integer(C_INTPTR_T) :: edt_finalize
+    ! integer(C_INTPTR_T) :: edt_finalize
+    integer(ocrGuid_k) :: edt_finalize
     integer :: i
-
-    ! ocrEdtCreate(
+    call printf_str("entered")
+    
+    
+    ! ocrEdtCreate(edt_finalize, 
     
   end function spmd_create_finalize_edt
 
