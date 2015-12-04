@@ -8,25 +8,23 @@ use ISO_C_BINDING
 
 interface
 
+subroutine ocrAbort(errorCode) &
+     BIND (c, name='wocrAbort')
+  use :: ISO_C_BINDING
+  use :: ocr_types
+  implicit none
+  integer(u8), intent(IN) :: errorCode
+end subroutine ocrAbort
+
 function ocrAddDependence(source, destination, slot, mode) result(status) &
      BIND (c, name='wocrAddDependence')
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
   integer(C_INTPTR_T), intent(IN), value :: source, destination
-  integer(C_INT32_T), intent(IN), value :: slot, mode
-  integer(C_INT8_T) :: status
+  integer(u32), intent(IN), value :: slot, mode
+  integer(u8) :: status
 end function ocrAddDependence
-
-subroutine ocrEventCreate(guid, eventType, flags) &
-     BIND (c, name='wocrEventCreate')
-  use :: ISO_C_BINDING
-  use :: ocr_types
-  implicit none
-  integer(C_INTPTR_T), intent(OUT) :: guid
-  integer(C_INT32_T), intent(IN), value :: eventType
-  integer(C_INT16_T), intent(IN), value :: flags
-end subroutine ocrEventCreate
 
 subroutine ocrDbCreate(db, addr, len, flags, affinity, allocator) &
      BIND (c, name='wocrDbCreate')
@@ -42,20 +40,20 @@ subroutine ocrDbCreate(db, addr, len, flags, affinity, allocator) &
 end subroutine ocrDbCreate
 
 subroutine ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, depv, &
-     properties, affinity, outputEvent) &
+     flags, affinity, outputEvent) &
      BIND (c, name='wocrEdtCreate')
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
-  integer(C_INTPTR_T), intent(OUT) :: guid
-  integer(C_INTPTR_T), intent(IN), value :: templateGuid
-  integer(C_INT32_T), intent(IN), value :: paramc
-  integer(C_INT64_T), intent(IN), dimension(*) :: paramv
-  integer(C_INT32_T), intent(IN), value :: depc
-  integer(C_INTPTR_T), intent(IN), dimension(*) :: depv
-  integer(C_INT16_T), intent(IN), value :: properties
-  integer(C_INTPTR_T), intent(IN), value :: affinity
-  integer(C_INTPTR_T), intent(INOUT) :: outputEvent
+  integer(ocrGuid_k), intent(OUT) :: guid
+  integer(ocrGuid_k), intent(IN), value :: templateGuid
+  integer(u32), intent(IN), value :: paramc
+  integer(u64), intent(IN), dimension(*) :: paramv
+  integer(u32), intent(IN), value :: depc
+  integer(ocrGuid_k), intent(IN), dimension(*) :: depv
+  integer(u16), intent(IN), value :: flags
+  integer(ocrGuid_k), intent(IN), value :: affinity
+  integer(ocrGuid_k), intent(INOUT) :: outputEvent
 end subroutine ocrEdtCreate
 
 ! ocrEdtTemplateCreate, _internal added so symbols match
@@ -70,6 +68,25 @@ subroutine ocrEdtTemplateCreate(guid, funcPtr, paramc, depc, &
   integer(C_INT32_T), intent(IN), value :: depc
   character(C_CHAR), intent(IN), value :: funcName
 end subroutine ocrEdtTemplateCreate
+
+subroutine ocrEventCreate(guid, eventType, flags) &
+     BIND (c, name='wocrEventCreate')
+  use :: ISO_C_BINDING
+  use :: ocr_types
+  implicit none
+  integer(C_INTPTR_T), intent(OUT) :: guid
+  integer(C_INT32_T), intent(IN), value :: eventType
+  integer(C_INT16_T), intent(IN), value :: flags
+end subroutine ocrEventCreate
+
+subroutine ocrEventSatisfy(eventGuid, dataGuid)  &
+     BIND (c, name='wocrEventSatisfy')
+  use :: ISO_C_BINDING
+  use :: ocr_types
+  implicit none
+  integer(C_INTPTR_T), intent(IN), value :: eventGuid
+  integer(C_INTPTR_T), intent(IN), value :: dataGuid
+end subroutine ocrEventSatisfy
 
 subroutine ocrShutdown() &
   BIND (c, name='wocrShutdown')
@@ -109,7 +126,7 @@ end subroutine printf_i
 subroutine printf_f(str, i) bind(C, name="printf_f")
   use ISO_C_BINDING
   character(len=1) :: str(*)
-  integer(C_FLOAT), value :: i
+  real(C_FLOAT), value :: i
 end subroutine printf_f
 
 subroutine printf_i32(str, i) bind(C, name="printf_i32")
