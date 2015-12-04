@@ -55,7 +55,7 @@ void wocrAddDependence(ocrGuid_t source, ocrGuid_t destination, u32 slot, ocrDbA
 }
 
 
-void wocrDbCreate(ocrGuid_t * db, void ** addr, u64 len, u16 flags, ocrGuid_t *affinity, ocrInDbAllocator_t allocator)
+void wocrDbCreate(ocrGuid_t *db, void ** addr, u64 len, u16 flags, ocrGuid_t affinity, ocrInDbAllocator_t allocator)
 {
 #if defined(VERBOSE)
   PRINTF("Pre-ocrDbCreate\n");
@@ -80,10 +80,9 @@ void wocrEdtCreate(ocrGuid_t *guid, ocrGuid_t templateGuid, u32 paramc, u64 * pa
 #if defined(VERBOSE)
   PRINTF("Pre-ocrEdtCreate\n");
 #endif
-  PRINTF("Null is %p\n", NULL);
-  depv = testNULL(*depv, depv);
-  paramv = test64NULL(*paramv, paramv);
-
+  /* PRINTF("Null is %p\n", NULL); */
+  /* depv = testNULL(*depv, depv); */
+  /* paramv = test64NULL(*paramv, paramv); */
 
   ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, depv, flags, affinity, outputEvent);
 
