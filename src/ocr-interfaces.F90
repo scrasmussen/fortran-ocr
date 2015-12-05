@@ -5,6 +5,7 @@
 
 module ocr_interfaces
 use ISO_C_BINDING
+use :: ocr_types
 
 interface
 
@@ -21,7 +22,7 @@ function ocrAddDependence(source, destination, slot, mode) result(status) &
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
-  integer(C_INTPTR_T), intent(IN), value :: source, destination
+  integer(ocrGuid_k), intent(IN), value :: source, destination
   integer(u32), intent(IN), value :: slot, mode
   integer(u8) :: status
 end function ocrAddDependence
@@ -31,12 +32,12 @@ subroutine ocrDbCreate(db, addr, len, flags, affinity, allocator) &
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
-  integer(C_INTPTR_T), intent(OUT) :: db
+  integer(ocrGuid_k), intent(OUT) :: db
   type(C_PTR), intent(OUT)  :: addr
-  integer(C_INT64_T), intent(IN), value :: len
-  integer(C_INT16_T), intent(IN), value :: flags
-  integer(C_INTPTR_T), intent(INOUT) :: affinity
-  integer(C_INT32_T), intent(IN), value :: allocator
+  integer(u64), intent(IN), value :: len
+  integer(u16), intent(IN), value :: flags
+  integer(ocrGuid_k), intent(INOUT) :: affinity
+  integer(u32), intent(IN), value :: allocator
 end subroutine ocrDbCreate
 
 subroutine ocrEdtCreate(guid, templateGuid, paramc, paramv, depc, depv, &
@@ -61,11 +62,12 @@ subroutine ocrEdtTemplateCreate(guid, funcPtr, paramc, depc, &
      funcName) BIND (c, name='wocrEdtTemplateCreate_internal')
   use :: ISO_C_BINDING
   use :: ocr_types
+  use :: ocr_fortran_types
   implicit none
-  integer(C_INTPTR_T), intent(OUT) :: guid
+  integer(ocrGuid_k), intent(OUT) :: guid
   type(ocrEdt_t), intent(IN), value  :: funcPtr
-  integer(C_INT32_T), intent(IN), value :: paramc
-  integer(C_INT32_T), intent(IN), value :: depc
+  integer(u32), intent(IN), value :: paramc
+  integer(u32), intent(IN), value :: depc
   character(C_CHAR), intent(IN), value :: funcName
 end subroutine ocrEdtTemplateCreate
 
@@ -74,9 +76,9 @@ subroutine ocrEventCreate(guid, eventType, flags) &
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
-  integer(C_INTPTR_T), intent(OUT) :: guid
-  integer(C_INT32_T), intent(IN), value :: eventType
-  integer(C_INT16_T), intent(IN), value :: flags
+  integer(ocrGuid_k), intent(OUT) :: guid
+  integer(u32), intent(IN), value :: eventType
+  integer(u16), intent(IN), value :: flags
 end subroutine ocrEventCreate
 
 subroutine ocrEventSatisfy(eventGuid, dataGuid)  &
@@ -84,8 +86,8 @@ subroutine ocrEventSatisfy(eventGuid, dataGuid)  &
   use :: ISO_C_BINDING
   use :: ocr_types
   implicit none
-  integer(C_INTPTR_T), intent(IN), value :: eventGuid
-  integer(C_INTPTR_T), intent(IN), value :: dataGuid
+  integer(ocrGuid_k), intent(IN), value :: eventGuid
+  integer(ocrGuid_k), intent(IN), value :: dataGuid
 end subroutine ocrEventSatisfy
 
 subroutine ocrShutdown() &
@@ -96,8 +98,9 @@ end subroutine ocrShutdown
 function getArgc(dbPtr) result(argNum) &
      BIND (c, name='wgetArgc')
   use ISO_C_BINDING
+  use :: ocr_types
   type(C_PTR), intent(IN) :: dbPtr
-  integer(C_INT64_T) :: argNum
+  integer(u64) :: argNum
 end function getArgc
 
 ! function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
@@ -105,11 +108,11 @@ end function getArgc
 !   use ISO_C_BINDING
 !   use :: ocr_types
 !   implicit none
-!   integer(C_INTPTR_T) :: returnGuid
-!   integer(C_INT32_T), intent(IN) :: paramc
-!   integer(C_INT64_T), intent(IN) :: paramv
+!   integer(ocrGuid_k) :: returnGuid
+!   integer(u32), intent(IN) :: paramc
+!   integer(u64), intent(IN) :: paramv
 !   ! type(C_PTR), intent(IN) :: paramv
-!   integer(C_INT32_T), intent(IN) :: depc
+!   integer(u32), intent(IN) :: depc
 !   type(ocrEdtDep_t), intent(IN) :: depv
 ! end function mainEdt
 
@@ -143,14 +146,11 @@ end subroutine printf_p
 
 subroutine printf_pi(str, i) bind(C, name="printf_pi")
   use ISO_C_BINDING
+  use :: ocr_types
   character(len=1) :: str(*)
-  integer(C_INTPTR_T), value :: i
+  integer(ocrGuid_k), value :: i
 end subroutine printf_pi
 
 end interface
-
-integer(C_INTPTR_T), bind(c, name="OCR_NULL_DEPV") :: NULL_DEPV(1)
-integer, parameter :: OCR_JUNK = 0
-
 end module ocr_interfaces
 
