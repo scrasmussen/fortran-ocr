@@ -2,7 +2,7 @@ include Include.mk
 CC = gcc
 FC = gfortran
 
-OBJS = ocr-interfaces.o ocr-wrapper.o ocr-types.o  wprintf.o printf.o ocr-fortran.o printc.o
+OBJS = ocr-interfaces.o ocr-wrapper.o ocr-types.o wprintf.o printf.o ocr-fortran.o printc.o
 LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
 
 CFLAGS = -g $(OCR_INCLUDE)
