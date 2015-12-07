@@ -1,0 +1,119 @@
+!
+! This file contains two types of data type examples for synchronization.
+! The member names are suggestive and are used here for exploration
+! purposes.  See the end of the file for description of how a compute
+! phase followed by a synchronization phase can be used to chain
+! together the two phases to glue Fortran "segments" together.
+!
+
+type sync_t
+
+  !! I think these are all guids?
+  !
+
+  !! Synchronization events and EDTs
+  !
+  integer(ocr_guid_k) :: tpl_sync             ! used to create new sync EDTs
+  integer(ocr_guid_k) :: tpl_compute          ! used if compute phase is a loop
+
+  integer(ocr_guid_k) :: edt_next_sync        ! next synchronization EDT
+  integer(ocr_guid_k) :: evt_next_sync        ! next synchronization event
+  integer(ocr_guid_k) :: evt_out_next_sync    ! output event of next synchronization EDT
+
+  !! Computation events and EDTs
+  !
+  integer(ocr_guid_k) :: edt_next_compute     ! next computation EDT
+  integer(ocr_guid_k) :: evt_next_compute     ! next computation event
+  integer(ocr_guid_k) :: evt_out_next_compute ! output event of next computation EDT
+
+  !! Data blocks for synchronization between neighboring EDTs
+  !
+  type(neighbor_sync_t) :: db_read_neighbor (:) ! read
+  type(neighbor_sync_t) :: db_write_neighbor(:) ! next computation EDT
+
+end type sync_t
+
+
+type neighbor_synt_t
+
+  integer(ocr_guid_k) :: evt_next_compute     ! next neighboring computation event
+  integer(ocr_guid_k) :: evt_next_sync        ! next neighboring synchronization event
+
+end type neighbor_synt_t
+
+
+Creation of events and EDTs
+---------------------------
+
+Compute Phase Destroy
+----------------------
+- ocrEventDestroy(evt_next_compute)
+
+Compute Phase Creation
+----------------------
+- edt_next_compute        ! using tpl_compute (if a loop, otherwise custom template)
+- evt_next_compute        ! neighboring synchronization EDT satisfies (sticky)
+- evt_out_next_compute    ! dependency for next syncronization EDT
+
+Compute Phase Dependencies
+--------------------------
+- to edt_next_compute
+  - add data blocks obtained from current compute EDT
+  - add evt_out_next_sync
+  - add evt_next_sync
+
+Compute Phase Data Copies
+-------------------------
+- copy evt_next_compute to db_write_neighbor%evt_next_compute
+
+Compute Phase Satisfies
+-----------------------
+- ocrEventSatisfy(db_read_neighbor%evt_next_sync)
+- evt_out_next_sync satisfied upon completion of comute EDT
+
+
+Synchonization Phase Destroy
+----------------------------
+- ocrEventDestroy(evt_next_sync)
+
+Synchronization Phase Creation
+------------------------------
+
+- edt_next_sync           ! using tpl_sync template
+- evt_next_sync           ! neighboring compute EDT satisfies (sticky)
+- evt_out_next_sync       ! dependency for next computation EDT
+
+Synchronization Phase Dependencies
+---------------------------------
+- to edt_next_sync
+  - add data blocks obtained from current sync EDT
+  - add evt_out_next_compute
+  - add evt_next_compute
+
+Synchronization Phase Data Copies
+---------------------------------
+- copy evt_next_sync to db_write_neightbor%evt_next_sync
+
+Synchronization Phase Satisfies
+-------------------------------
+- ocrEventSatisfy(db_read_neighbor%evt_next_sync)
+- evt_out_next_compute satisfied upon completion of sync EDT
+
+
+Test timing of events and data transfers
+................................................................................
+
+  edt_next_compute     - {1 data and 2 event dependencies}
+  evt_next_compute     - compute creates, sync adds dep to next sync, 
+  evt_out_next_compute - compute creates, sync adds dep to next sync, next compute satisfies
+
+
+  edt_next_sync        - {1 data and 2 event dependencies}
+  evt_next_sync        - sync creates, compute adds dep to next compute, 
+  evt_out_next_sync    - sync creates, compute adds dep to next compute, next sync satisfies
+
+
+  !! Data blocks for synchronization between neighboring EDTs
+  !
+  type(neighbor_sync_t) :: db_read_neighbor (:) ! read
+  type(neighbor_sync_t) :: db_write_neighbor(:) ! next computation EDT
