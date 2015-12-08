@@ -107,13 +107,14 @@ Test timing of events and data transfers
   evt_next_compute     - compute creates, sync adds dep to next sync, 
   evt_out_next_compute - compute creates, sync adds dep to next sync, next compute satisfies
 
-
   edt_next_sync        - {1 data and 2 event dependencies}
   evt_next_sync        - sync creates, compute adds dep to next compute, 
   evt_out_next_sync    - sync creates, compute adds dep to next compute, next sync satisfies
 
+  db_read_neighbor
+     evt_next_compute  - satisfied by neighbor at end of synchronization phase
+     evt_next_sync     - satisfied by neighbor at end of communication   phase
 
-  !! Data blocks for synchronization between neighboring EDTs
-  !
-  type(neighbor_sync_t) :: db_read_neighbor (:) ! read
-  type(neighbor_sync_t) :: db_write_neighbor(:) ! next computation EDT
+  db_write_neighbor
+     evt_next_compute  - destroyed, created, then copied to neighbor by compute
+     evt_next_sync     - destroyed, created, then copied to neighbor by synch
