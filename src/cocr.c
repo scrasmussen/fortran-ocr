@@ -8,22 +8,41 @@ void SPMD_Finalize(info_t info)
   ocrEventSatisfy(info.evt_finalize, NULL_GUID);
 }
 
+void SPMD_Add_haloarray(int len, int slot, int *halo, SPMD_t info)
+{
+  info_t **thread;
+  int size = 4, i;
+
+  thread = &info.thread[slot];
+  ocrGuid_t tmpDataGuid;
+  u64 *tmp;
+  ocrDbCreate(&tmpDataGuid, (void**) &tmp, sizeof(double)*len, DB_PROP_NONE, NULL_GUID, NO_ALLOC);
+  ocrAddDependence(tmpDataGuid, thread[0]->edt_next_compute, 0, DB_MODE_RW);
+
+  int num_neighbor = 2;
+  for (i = 0; i < num_neighbor; ++i)
+    ocrDbCreate(&tmpDataGuid, (void**) &tmp, sizeof(double), DB_PROP_NONE, NULL_GUID, NO_ALLOC);
+}
+
 void SPMD_Init(int size, int dim, int topology, int np, void *mainF90Edt, 
-	       void *syncEdt, void *finalizeEdt, Info info)
+	       void *syncEdt, void *finalizeEdt, SPMD_t info)
 {
   int i, j;
   ocrGuid_t tmp;
   info_t **thread;
-  thread = &info.thread[0];
-  
+
+  thread = &info.thread[0];  
   int numNeighbor = 2;
-  for (i = 0; i < np; ++i)
-    ocrDbCreate(&tmp, (void **) &thread[i], sizeof(info_t) + sizeof(neighborSync_t) * (numNeighbor - 1), DB_PROP_NONE, NULL_GUID, NO_ALLOC);
+  for (i = 0; i < np; ++i) {
+    ocrDbCreate(&tmp, (void **) &thread[i], sizeof(info_t) + sizeof(neighborSync_t) * (numNeighbor - 1), 
+		DB_PROP_NONE, NULL_GUID, NO_ALLOC);
+    thread[i]->info_guid = tmp;
+  }
   
   // INIT Templates
   ocrGuid_t mainTemplate, syncTemplate, finalizeTemplate;
-  ocrEdtTemplateCreate(&mainTemplate, mainF90Edt, 0, 1 + topology);
-  ocrEdtTemplateCreate(&syncTemplate, syncEdt, 0, 1 + topology);
+  ocrEdtTemplateCreate(&mainTemplate, mainF90Edt, 0, EDT_PARAM_UNK);
+  ocrEdtTemplateCreate(&syncTemplate, syncEdt, 0, EDT_PARAM_UNK);
   ocrEdtTemplateCreate(&finalizeTemplate, finalizeEdt, 0, np);
 
   for (i = 0; i < np; ++i) {
