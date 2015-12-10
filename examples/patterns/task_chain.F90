@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------
 module task_chain_mod
-  use :: ocr_interfaces
+  use :: ocr
   implicit none
 
 contains
