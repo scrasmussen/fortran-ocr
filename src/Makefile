@@ -3,6 +3,7 @@ CC = gcc
 FC = gfortran
 
 OBJS = ocr-interfaces.o ocr-wrapper.o ocr-types.o wprintf.o printf.o ocr-fortran.o printc.o
+COBJS = cocr.o fork-join.o
 LIBS = -L$(OCR_ROOT)/ocr/install/x86/lib -locr
 
 CFLAGS = -g $(OCR_INCLUDE)
@@ -23,7 +24,10 @@ LDFLAGS = -lpthread
 all: create-lib
 
 objs: $(OBJS)
-	-@echo "--Compiled--"
+	-@echo "--F Compiled--"
+
+cobjs: $(COBJS)
+	-@echo "--C Compiled--"
 
 create-lib: ocr-fortran types objs
 	ar cr ocrFortranLib.a $(OBJS)
