@@ -15,7 +15,6 @@ type sync_t
   !
   integer(ocr_guid_k) :: tpl_sync             ! used to create new sync EDTs
   integer(ocr_guid_k) :: tpl_compute          ! used if compute phase is a loop
-
   integer(ocr_guid_k) :: edt_next_sync        ! next synchronization EDT
   integer(ocr_guid_k) :: evt_next_sync        ! next synchronization event
   integer(ocr_guid_k) :: evt_out_next_sync    ! output event of next synchronization EDT
