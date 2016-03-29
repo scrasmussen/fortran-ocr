@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ocr.h>
 #include "cocr.h"
 
 void SPMD_Finalize(info_t info)
@@ -24,20 +23,56 @@ void SPMD_Add_haloarray(int len, int slot, int *halo, SPMD_t info)
     ocrDbCreate(&tmpDataGuid, (void**) &tmp, sizeof(double), DB_PROP_NONE, NULL_GUID, NO_ALLOC);
 }
 
-void SPMD_Init(int size, int dim, int topology, int np, void *mainF90Edt, 
-	       void *syncEdt, void *finalizeEdt, SPMD_t info)
+
+ocrGuid_t mapCreateFunc(u32 paramc, u64 *paramv, u32 depc, ocrEdtDep_t depv[])
+{
+
+  ocrShutdown();
+  PRINTF("==Shutdown\n");
+  return NULL_GUID;
+}
+
+void SPMD_Init(u64 size, u64 dim, u64 topology, u64 np, ocrEdt_t mainF90Edt, ocrEdt_t syncEdt, ocrEdt_t finalizeEdt, SPMD_t info)
 {
   int i, j;
   ocrGuid_t tmp;
   info_t **thread;
-
   thread = &info.thread[0];  
-  int numNeighbor = 2;
+  u64 numNeighbor = 2;
+  u64 numGuids= numNeighbor * np;
+  ocrGuid_t mapGuid;
+  s64 dimensions[] = {size, numGuids};
+
+  ocrEdtDep_t array;
+  ocrGuid_t *map;
+
+  array = GuidRangeCreate(&mapGuid, numGuids, GUID_USER_EVENT_STICKY);
+  map = array.ptr;
+
+  ocrGuid_t outguid;
+  GuidFromIndex(&outguid, map, 0);
+  
+  ocrGuid_t mapCreateTemplate, edt_mapCreate;
+  /* ocrEdtTemplateCreate(&mapCreateTemplate, mapCreateFunc, 0, 0); */
+  ocrEdtTemplateCreate(&map[0], mapCreateFunc, 0, 0);
+  ocrEdtCreate(&edt_mapCreate, map[0], EDT_PARAM_DEF, NULL, EDT_PARAM_DEF, NULL, EDT_PROP_FINISH, NULL_GUID, NULL);
+  /* ocrEdtTemplateDestroy(mapCreateTemplate); */
+	      
+
+  /* ocrGuidMapCreate(&mapGuid, 2, testFunc, dimensions, numGuids, GUID_USER_EVENT_STICKY); */
+
+  /* ocrGuidRangeCreate(&mapGuid, numGuids, GUID_USER_EVENT_STICKY); */
+  
+  PRINTF("FIN\n");
+  return;
+
+
   for (i = 0; i < np; ++i) {
-    ocrDbCreate(&tmp, (void **) &thread[i], sizeof(info_t) + sizeof(neighborSync_t) * (numNeighbor - 1), 
-		DB_PROP_NONE, NULL_GUID, NO_ALLOC);
-    thread[i]->info_guid = tmp;
+    /* ocrDbCreate(&tmp, (void **) &thread[i], sizeof(info_t) + sizeof(neighborSync_t) * (numNeighbor - 1),  */
+    /* 		DB_PROP_NONE, NULL_GUID, NO_ALLOC); */
+    /* thread[i]->info_guid = tmp; */
   }
+
   
   // INIT Templates
   ocrGuid_t mainTemplate, syncTemplate, finalizeTemplate;
@@ -50,44 +85,48 @@ void SPMD_Init(int size, int dim, int topology, int np, void *mainF90Edt,
     // NOTE: is this the right template?
     thread[i]->tpl_compute = mainTemplate;
   }
+
   
   // INIT EDT's
   for (i = 0; i < np; ++i) {
+    PRINTF("step %u\n", i);
     ocrEdtCreate(&thread[i]->edt_next_sync, syncTemplate, EDT_PARAM_DEF, NULL, 
 		 EDT_PARAM_DEF, NULL, EDT_PROP_NONE, NULL_GUID, 
 		 &thread[i]->evt_out_next_sync);
     // NOTE: is this the right template?
+    PRINTF("step right%u\n", i);
     ocrEdtCreate(&thread[i]->edt_next_compute, mainTemplate, EDT_PARAM_DEF, 
 		 NULL,EDT_PARAM_DEF, NULL, EDT_PROP_NONE, NULL_GUID, 
 		 &thread[i]->evt_out_next_compute);
   }
+
   ocrGuid_t edt_finalize;
   ocrEdtCreate(&edt_finalize, finalizeTemplate, EDT_PARAM_DEF, NULL, 
 	       EDT_PARAM_DEF, NULL, EDT_PROP_NONE, NULL_GUID, NULL);
 
   // INIT Neightbor Events
   for (i = 0; i < np; ++i) {
-    // left neighbor
-    thread[i]->neighbor[0].edt_next_sync = &thread[(i-1+np)%np]->edt_next_sync;
-    thread[i]->neighbor[0].edt_next_compute = &thread[(i-1+np)%np]->edt_next_compute;
-    // right neighbor
-    thread[i]->neighbor[1].edt_next_sync = &thread[(i+1)%np]->edt_next_sync;
-    thread[i]->neighbor[1].edt_next_compute = &thread[(i+1)%np]->edt_next_compute;
+    /* // left neighbor */
+    /* thread[i]->neighbor[0].edt_next_sync = &thread[(i-1+np)%np]->edt_next_sync; */
+    /* thread[i]->neighbor[0].edt_next_compute = &thread[(i-1+np)%np]->edt_next_compute; */
+    /* // right neighbor */
+    /* thread[i]->neighbor[1].edt_next_sync = &thread[(i+1)%np]->edt_next_sync; */
+    /* thread[i]->neighbor[1].edt_next_compute = &thread[(i+1)%np]->edt_next_compute; */
   }
 
   // INIT Events
   for (i = 0; i < np; ++i) {
-    // finalize
-    ocrEventCreate(&thread[i]->evt_finalize, OCR_EVENT_ONCE_T, EVT_PROP_NONE);
-    // self
-    ocrEventCreate(&thread[i]->evt_next_sync, OCR_EVENT_ONCE_T, EVT_PROP_NONE);
-    ocrEventCreate(&thread[i]->evt_next_compute, OCR_EVENT_ONCE_T, EVT_PROP_NONE);
-    // left neighbor
-    ocrEventCreate(&thread[i]->neighbor[0].evt_next_sync, OCR_EVENT_ONCE_T, EVT_PROP_NONE);
-    ocrEventCreate(&thread[i]->neighbor[0].evt_next_compute, OCR_EVENT_ONCE_T, EVT_PROP_NONE);
-    // right neighbor
-    ocrEventCreate(&thread[i]->neighbor[1].evt_next_sync, OCR_EVENT_ONCE_T, EVT_PROP_NONE);
-    ocrEventCreate(&thread[i]->neighbor[1].evt_next_compute, OCR_EVENT_ONCE_T, EVT_PROP_NONE);
+    /* // finalize */
+    /* ocrEventCreate(&thread[i]->evt_finalize, OCR_EVENT_ONCE_T, EVT_PROP_NONE); */
+    /* // self */
+    /* ocrEventCreate(&thread[i]->evt_next_sync, OCR_EVENT_ONCE_T, EVT_PROP_NONE); */
+    /* ocrEventCreate(&thread[i]->evt_next_compute, OCR_EVENT_ONCE_T, EVT_PROP_NONE); */
+    /* // left neighbor */
+    /* ocrEventCreate(&thread[i]->neighbor[0].evt_next_sync, OCR_EVENT_ONCE_T, EVT_PROP_NONE); */
+    /* ocrEventCreate(&thread[i]->neighbor[0].evt_next_compute, OCR_EVENT_ONCE_T, EVT_PROP_NONE); */
+    /* // right neighbor */
+    /* ocrEventCreate(&thread[i]->neighbor[1].evt_next_sync, OCR_EVENT_ONCE_T, EVT_PROP_NONE); */
+    /* ocrEventCreate(&thread[i]->neighbor[1].evt_next_compute, OCR_EVENT_ONCE_T, EVT_PROP_NONE); */
 
   }
 
@@ -95,10 +134,10 @@ void SPMD_Init(int size, int dim, int topology, int np, void *mainF90Edt,
   // int start = 1; // start = 0 is for the datablock?
   int start = 0; // until db's are added
   for (i = 0; i < np; ++i) {
-    ocrAddDependence(thread[i]->evt_finalize, edt_finalize, i, DB_MODE_RW);
-    ocrAddDependence(thread[i]->edt_next_sync, thread[i]->edt_next_sync ,start,DB_MODE_RW);
-    ocrAddDependence(thread[i]->neighbor[0].evt_next_sync, *thread[i]->neighbor[0].edt_next_sync, start + 1, DB_MODE_RW); // left neighbor evt
-    ocrAddDependence(thread[i]->neighbor[1].evt_next_sync, *thread[i]->neighbor[1].edt_next_sync, start + 2, DB_MODE_RW); // right neighbor evt
+    /* ocrAddDependence(thread[i]->evt_finalize, edt_finalize, i, DB_MODE_RW); */
+    /* ocrAddDependence(thread[i]->edt_next_sync, thread[i]->edt_next_sync ,start,DB_MODE_RW); */
+    /* ocrAddDependence(thread[i]->neighbor[0].evt_next_sync, *thread[i]->neighbor[0].edt_next_sync, start + 1, DB_MODE_RW); // left neighbor evt */
+    /* ocrAddDependence(thread[i]->neighbor[1].evt_next_sync, *thread[i]->neighbor[1].edt_next_sync, start + 2, DB_MODE_RW); // right neighbor evt */
   }
   return;
 }
