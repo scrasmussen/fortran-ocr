@@ -1,5 +1,6 @@
 module m
   use ISO_C_BINDING
+  use :: ocr_fortran_types
   use :: ocr_types
   use :: ocr_interfaces
   implicit none
@@ -23,6 +24,7 @@ end function appEdt
 
 function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
      BIND (c, name='mainEdt')
+  implicit none
   integer(ocrGuid_k) :: returnGuid
   integer(u32), intent(in) :: paramc
   integer(u64), intent(in) :: paramv
@@ -42,8 +44,8 @@ function mainEdt(paramc, paramv, depc, depv) result(returnGuid) &
        C_NULL_CHAR)
 
   outputEvent = C_NULL
-  call ocrEdtCreate(edtGuid, templateGuid, EDT_PARAM_DEF, NULL_GUID_ARRAY, &
-       EDT_PARAM_DEF, NULL_GUID_ARRAY, EDT_PROP_NONE, NULL_GUID, outputEvent)
+  call ocrEdtCreate(edtGuid, templateGuid, EDT_PARAM_DEF, NULL_PARAMV, &
+       EDT_PARAM_DEF, NULL_DEPV, EDT_PROP_NONE, NULL_GUID, outputEvent)
 
 
   call ocrShutdown()
